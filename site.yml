@@ -1,0 +1,30 @@
+---
+# Set up a normal user
+- name: Bootstrap server
+  hosts: servers
+  remote_user: root
+  gather_facts: true
+  roles:
+    - base
+    - user
+
+# Install all the programs we need
+- name: Configure server
+  hosts: servers
+  remote_user: jpnance
+  gather_facts: false
+  roles:
+    - docker
+    - chezmoi
+    - apps
+    - nginx
+
+# Install SSL certificates
+- name: Install certificates
+  hosts: servers
+  remote_user: jpnance
+  gather_facts: false
+  tags: [certs, never]
+  roles:
+    - certs
+
