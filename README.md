@@ -1,4 +1,4 @@
-# coin-ops
+# CoinOps
 
 Infrastructure automation for the coinflipper ecosystem. Ansible playbooks for provisioning a Debian Linode server + Raspberry Pi backup puller.
 
