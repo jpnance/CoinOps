@@ -1,0 +1,39 @@
+---
+admin_user: jpnance
+admin_email: jpnance@gmail.com
+
+apps_dir: /home/{{ admin_user }}/apps
+ops_dir: /home/{{ admin_user }}/ops
+
+docker_network: coinflipper
+
+apps:
+  - name: Coinflipper Login
+    repo: https://github.com/jpnance/CoinflipperLogin
+    domain: login.coinflipper.org
+    port: 5422
+
+  - name: SubContest
+    repo: https://github.com/jpnance/SubContest
+    domain: subcontest.coinflipper.org
+    port: 7811
+
+  - name: Summer Classics
+    repo: https://github.com/jpnance/SummerClassics
+    domain: classics.coinflipper.org
+    port: 9895
+
+  - name: Pick-a-Hit
+    repo: https://github.com/jpnance/pickahit
+    domain: pickahit.coinflipper.org
+    port: 2814
+
+  - name: The Untitled
+    repo: https://github.com/jpnance/UNG
+    domain: untitled.coinflipper.org
+    port: 8736
+
+  - name: Primetime Soap Operas
+    repo: https://github.com/jpnance/PSO
+    domain: thedynastyleague.com
+    port: 9528
