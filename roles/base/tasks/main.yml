@@ -14,6 +14,11 @@
       - ufw
     state: present
 
+- name: Set hostname
+  hostname:
+    name: coin-ops-test
+    use: debian
+
 - name: Set timezone
   timezone:
     name: UTC
