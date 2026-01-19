@@ -1,12 +1,4 @@
 ---
-- name: Create ~/bin directory
-  file:
-    path: "/home/{{ admin_user }}/bin"
-    state: directory
-    owner: "{{ admin_user }}"
-    group: "{{ admin_user }}"
-    mode: "0755"
-
 - name: Create chezmoi config directory
   file:
     path: "/home/{{ admin_user }}/.config/chezmoi"
@@ -28,16 +20,15 @@
       tags = ["bash", "git", "mrpretty", "runt", "vim"]
 
 - name: Install chezmoi
-  shell: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /home/{{ admin_user }}/bin
+  shell: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
   args:
-    creates: "/home/{{ admin_user }}/bin/chezmoi"
+    creates: "/usr/local/bin/chezmoi"
+  become: true
 
 - name: Initialize chezmoi with dotfiles repo
-  command: "/home/{{ admin_user }}/bin/chezmoi init --apply https://github.com/jpnance/chezmoi-dotfiles"
+  command: "chezmoi init https://github.com/jpnance/chezmoi-dotfiles"
   args:
     creates: "/home/{{ admin_user }}/.local/share/chezmoi"
-  become: false
 
 - name: Apply chezmoi dotfiles
-  command: "/home/{{ admin_user }}/bin/chezmoi apply"
-  become: false
+  command: "chezmoi apply"

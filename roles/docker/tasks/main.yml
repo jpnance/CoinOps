@@ -5,12 +5,14 @@
       - docker.io
       - docker-compose
     state: present
+  become: true
 
 - name: Add admin user to docker group
   user:
     name: "{{ admin_user }}"
     groups: docker
     append: true
+  become: true
 
 - name: Configure Docker daemon
   copy:
@@ -24,14 +26,17 @@
         }
       }
   notify: restart docker
+  become: true
 
 - name: Ensure Docker is running
   service:
     name: docker
     state: started
     enabled: true
+  become: true
 
 - name: Create shared Docker network
   docker_network:
     name: "{{ docker_network }}"
     state: present
+  become: true
