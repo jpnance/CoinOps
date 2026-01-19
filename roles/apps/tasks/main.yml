@@ -17,3 +17,15 @@
     dest: "{{ apps_dir }}/{{ item.dest }}/.env"
     mode: "0600"
   loop: "{{ apps }}"
+
+- name: Install dependencies with npm
+  command: "/home/{{ admin_user }}/bin/runt ci
+  args:
+    chdir: "{{ apps_dir }}/{{ item.dest }}"
+  loop: "{{ apps }}"
+
+- name: Start containers
+  command: docker compose up -d --build
+  args:
+    chdir: "{{ apps_dir }}/{{ item.dest }}"
+  loop: "{{ apps }}"
