@@ -3,15 +3,11 @@
   file:
     path: "/home/{{ admin_user }}/.config/chezmoi"
     state: directory
-    owner: "{{ admin_user }}"
-    group: "{{ admin_user }}"
     mode: "0755"
 
 - name: Configure chezmoi data
   copy:
     dest: "/home/{{ admin_user }}/.config/chezmoi/chezmoi.toml"
-    owner: "{{ admin_user }}"
-    group: "{{ admin_user }}"
     mode: "0644"
     content: |
       [data]
