@@ -1,0 +1,41 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install base packages
+  apt:
+    name: 
+      - fail2ban
+      - git
+      - jq
+      - kitty-terminfo
+      - ufw
+    state: present
+
+- name: Set timezone
+  timezone:
+    name: UTC
+
+- name: Enable ufw and deny incoming traffic by default
+  ufw:
+    state: enabled
+    policy: deny
+
+- name: Allow traffic on certain ports
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - "22" # ssh
+    - "2222" # ssh jumpbox
+    - "80" # http
+    - "443" # https
+
+- name: Enable fail2ban
+  service:
+    name: fail2ban
+    state: started
+    enabled: true
