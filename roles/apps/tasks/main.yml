@@ -1,0 +1,19 @@
+---
+- name: Create apps directory
+  file:
+    path: "{{ apps_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Clone app repositories
+  git:
+    repo: "{{ item.repo }}"
+    dest: "{{ apps_dir }}/{{ item.dest }}"
+  loop: "{{ apps }}"
+
+- name: Template .env files
+  template:
+    src: "{{ item.slug }}.env.j2"
+    dest: "{{ apps_dir }}/{{ item.dest }}/.env"
+    mode: "0600"
+  loop: "{{ apps }}"
