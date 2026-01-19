@@ -1,0 +1,37 @@
+---
+- name: Install Docker from Debian repos
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+
+- name: Add admin user to docker group
+  user:
+    name: "{{ admin_user }}"
+    groups: docker
+    append: true
+
+- name: Configure Docker daemon
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+  notify: restart docker
+
+- name: Ensure Docker is running
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Create shared Docker network
+  docker_network:
+    name: "{{ docker_network }}"
+    state: present
