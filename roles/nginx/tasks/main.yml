@@ -1,0 +1,30 @@
+---
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+  become: true
+
+- name: Template vhost configs
+  template:
+    src: vhost.conf.j2
+    dest: "/etc/nginx/sites-available/{{ item.domain }}"
+  loop: "{{ apps }}"
+  become: true
+  notify: reload nginx
+
+- name: Enable vhosts
+  file:
+    src: "/etc/nginx/sites-available/{{ item.domain }}"
+    dest: "/etc/nginx/sites-enabled/{{ item.domain }}"
+    state: link
+  loop: "{{ apps }}"
+  become: true
+  notify: reload nginx
+
+- name: Remove default vhost
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  become: true
+  notify: reload nginx
