@@ -19,7 +19,7 @@
   loop: "{{ apps }}"
 
 - name: Install dependencies with npm
-  command: "/home/{{ admin_user }}/bin/runt ci
+  command: "/home/{{ admin_user }}/bin/runt ci"
   args:
     chdir: "{{ apps_dir }}/{{ item.dest }}"
   loop: "{{ apps }}"
