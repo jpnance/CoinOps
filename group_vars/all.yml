@@ -9,31 +9,43 @@ docker_network: coinflipper
 
 apps:
   - name: Coinflipper Login
+    slug: login
     repo: https://github.com/jpnance/CoinflipperLogin
+    dest: CoinflipperLogin
     domain: login.coinflipper.org
     port: 5422
 
   - name: SubContest
+    slug: subcontest
     repo: https://github.com/jpnance/SubContest
+    dest: SubContest
     domain: subcontest.coinflipper.org
     port: 7811
 
   - name: Summer Classics
+    slug: classix
     repo: https://github.com/jpnance/SummerClassics
+    dest: SummerClassics
     domain: classics.coinflipper.org
     port: 9895
 
   - name: Pick-a-Hit
+    slug: pickahit
     repo: https://github.com/jpnance/pickahit
+    dest: pickahit
     domain: pickahit.coinflipper.org
     port: 2814
 
   - name: The Untitled
+    slug: untitled
     repo: https://github.com/jpnance/UNG
+    dest: UNG
     domain: untitled.coinflipper.org
     port: 8736
 
   - name: Primetime Soap Operas
+    slug: pso
     repo: https://github.com/jpnance/PSO
+    dest: PSO
     domain: thedynastyleague.com
     port: 9528
