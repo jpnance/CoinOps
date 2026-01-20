@@ -12,12 +12,19 @@
       - jq
       - kitty-terminfo
       - ufw
+      - rsync
     state: present
 
 - name: Set hostname
   hostname:
-    name: coin-ops-test
+    name: "{{ hostname }}"
     use: debian
+
+- name: Add hostname to /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "127.0.1.1 {{ hostname }}"
+    state: present
 
 - name: Set timezone
   timezone:

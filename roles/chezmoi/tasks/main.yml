@@ -12,8 +12,8 @@
     content: |
       [data]
       email = "jpnance@gmail.com"
-      machine = "coin-ops-test"
-      tags = ["bash", "git", "mrpretty", "runt", "vim"]
+      machine = "{{ hostname }}"
+      tags = ["bash", "git", "vim"]
 
 - name: Install chezmoi
   shell: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin

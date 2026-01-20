@@ -1,0 +1,22 @@
+---
+- name: Sync SSL certificates from current production to a temporary location
+  shell: rsync -a --rsync-path="sudo rsync" coinflipper.org:/etc/letsencrypt/ /tmp/letsencrypt
+
+- name: Copy SSL certificates to final location
+  shell: mv /tmp/letsencrypt /etc/letsencrypt
+  become: true
+
+- name: Install certbot for auto-renewal
+  apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+  become: true
+
+- name: Ensure certbot auto-renewal service is running
+  service:
+    name: certbot.timer
+    state: started
+    enabled: true
+  become: true

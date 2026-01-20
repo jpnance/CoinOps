@@ -15,6 +15,7 @@
     - docker # Install and configure Docker for use
     - chezmoi # Install and configure chezmoi for use
     - apps # Clone apps, install dependencies, and start Docker containers
+    - certs # Copy existing SSL certificates from outgoing server and install certbot
     - nginx # Install nginx and set up virtual hosts for apps
 
 # Install SSL certificates

@@ -1,4 +1,6 @@
 ---
+hostname: coin-ops-test
+
 admin_user: jpnance
 admin_email: jpnance@gmail.com
 

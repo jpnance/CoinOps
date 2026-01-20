@@ -1,6 +1,17 @@
 server {
 	listen 80;
 	server_name {{ item.domain }};
+	return 301 https://$server_name$request_uri;
+}
+
+server {
+	listen 443 ssl;
+	server_name {{ item.domain }};
+
+	ssl_certificate /etc/letsencrypt/live/{{ item.domain }}/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/{{ item.domain }}/privkey.pem;
+	include /etc/letsencrypt/options-ssl-nginx.conf;
+	ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
 	access_log /var/log/nginx/{{ item.domain }}.access.log;
 	error_log /var/log/nginx/{{ item.domain }}.error.log;
