@@ -1,113 +1,97 @@
 # CoinOps
 
-Infrastructure automation for the coinflipper ecosystem. Ansible playbooks for provisioning a Debian Linode server + Raspberry Pi backup puller.
+Infrastructure automation for the coinflipper ecosystem. Ansible playbooks for provisioning a Debian Linode server and Raspberry Pi backup puller.
 
 ## Goal
 
-Automate yearly fresh-start Linode rebuilds. From a blank Debian instance to fully running production in one command (plus certbot after DNS propagates).
+Automate yearly fresh-start Linode rebuilds. From a blank Debian instance to fully running production in one command.
 
 ## Architecture
 
 ### Server (Linode, Debian)
 
 - **User:** `jpnance` with sudo + docker group
-- **Apps:** Docker Compose, nginx reverse proxy, Let's Encrypt via certbot
-- **Dotfiles:** chezmoi (delivers `~/bin/runt` task runner)
+- **Apps:** Docker Compose behind nginx reverse proxy, HTTPS via Let's Encrypt
+- **Dotfiles:** chezmoi (bash, git, vim, tmux configs)
 - **Network:** Single Docker network `coinflipper` shared by all apps
 
 ### Backup (Raspberry Pi)
 
 - Pulls hourly backups from Linode via SCP
-- Checks metadata, alerts on stale/missing backups
-- Scripts are tightly coupled with server-side backup script
+- Validates metadata, alerts on stale/missing/shrinking collections via ntfy
+- Monthly golden snapshots, auto-cleanup of old dailies
 
 ## Apps
 
-| App | Domain | Type | Port | Repo |
-|-----|--------|------|------|------|
-| CoinFlipper | coinflipper.org | docker | 3000 | jpnance/CoinFlipper |
-| Login | login.coinflipper.org | docker | 3001 | jpnance/CoinFlipperLogin |
-| SubContest | subcontest.coinflipper.org | docker | 3002 | jpnance/SubContest |
-| PickAHit | pickahit.coinflipper.org | docker | 3003 | jpnance/PickAHit |
-| Classics | classics.coinflipper.org | docker | 3004 | jpnance/Classics |
-| TheDynastyLeague | thedynastyleague.com | docker | 3005 | jpnance/TheDynastyLeague |
-| (any static sites) | ??? | static | — | ??? |
-
-*Ports are placeholders—confirm actual values from .env files.*
+| App | Domain | Port | Repo |
+|-----|--------|------|------|
+| Coinflipper Login | login.coinflipper.org | 5422 | jpnance/CoinflipperLogin |
+| SubContest | subcontest.coinflipper.org | 7811 | jpnance/SubContest |
+| Summer Classics | classics.coinflipper.org | 9895 | jpnance/SummerClassics |
+| Pick-a-Hit | pickahit.coinflipper.org | 2814 | jpnance/pickahit |
+| Primetime Soap Operas | thedynastyleague.com | 9528 | jpnance/PSO |
 
 ## Key Decisions
 
 - **Ansible over shell scripts:** Idempotency, templating, structure
 - **Runs from laptop:** No agent on server, just SSH
-- **HTTPS git cloning:** Public repos, no SSH key bootstrap needed
-- **Secrets via Ansible Vault:** Encrypted in repo, decrypted at runtime
-- **Vault password in BitWarden:** One password to rule them all
-- **chezmoi before app clones:** Delivers `runt` which apps need for `runt ci`
-- **Two nginx vhost templates:** `vhost-docker.conf.j2` (reverse proxy) and `vhost-static.conf.j2` (serve files)
-- **Docker log rotation:** Set in `/etc/docker/daemon.json`
-- **Certbot runs after DNS propagates:** Possibly a separate step/tag
+- **HTTPS git cloning:** Public repos, no deploy key needed
+- **Secrets via Ansible Vault:** Encrypted in repo, password file at `~/.vault_pass`
+- **Seed from live prod:** During cutover, databases are seeded directly from the outgoing server
+- **Copy certs from old prod:** SSL certificates rsync'd from outgoing server, certbot installed for renewal only
+- **Docker from Debian repos:** `docker.io` and `docker-compose` packages (not Docker's official repo)
+- **Docker log rotation:** Configured in `/etc/docker/daemon.json`
+- **Container restart policy:** `restart: unless-stopped` in all docker-compose files
 
 ## Server Setup Flow
 
-1. Create Linode (UI or API)
-2. Update DNS A records
+1. Create Linode (Debian, UI or API)
+2. Update DNS A records to new IP
 3. Update `inventory.yml` with new IP
-4. Run `ansible-playbook site.yml --ask-vault-pass`
-   - Installs: git, vim, jq, nginx, certbot, fail2ban, ufw, Docker
-   - Creates user, hardens SSH
-   - Creates `coinflipper` Docker network
-   - Installs chezmoi + dotfiles
-   - Clones all app repos via HTTPS to `~/Workspace/`
-   - Templates `.env` files from vault
-   - Runs `runt ci && docker compose up -d` for each app
-   - Deploys nginx vhosts (HTTP-only initially)
-5. Wait for DNS, then run certbot (manually or via `--tags certs`)
-6. Install cron jobs (deploy, backup)
+4. Run `ansible-playbook site.yml`
+   - **Preflight:** Verifies old prod is reachable (runs locally)
+   - **Bootstrap (as root):** Installs packages, configures firewall, creates user
+   - **Configure (as jpnance):** Docker, chezmoi, app clones, database seeding, backups, deploy, certs, nginx
+   - **Cleanup:** Removes temporary SSH keys
+5. Verify apps are running: `curl -k https://<new-ip>/ -H "Host: login.coinflipper.org"`
+6. Cut over DNS when ready
 
-## Secrets Needed (vault.yml)
+## Secrets (group_vars/all/vault.yml)
 
-- `coinflipper_*` — various API tokens, DB passwords
-- `dynastyleague_*` — similar
-- (List actual .env keys here as you build it out)
+- `vault_google_api_key`
+- `vault_pso_fantrax_cookies`
+- `vault_login_gmail_*`
+- `vault_linode_ssh_private_key` (for server-to-server during cutover)
 
 ## File Structure
 
 ```
-coin-ops/
+CoinOps/
 ├── ansible.cfg
 ├── inventory.yml
 ├── site.yml
 ├── group_vars/
-│   ├── all.yml          # App definitions, domains, ports
-│   └── vault.yml        # Encrypted secrets
-├── roles/
-│   ├── base/            # apt, firewall, fail2ban, timezone
-│   ├── docker/          # Docker CE + daemon config
-│   ├── user/            # jpnance user, SSH keys
-│   ├── chezmoi/         # Install chezmoi, apply dotfiles
-│   ├── apps/            # Clone repos, .env, docker compose
-│   ├── nginx/           # Vhost templates
-│   └── certs/           # Certbot (run after DNS)
-├── templates/
-│   ├── vhost-docker.conf.j2
-│   ├── vhost-static.conf.j2
-│   └── env/
-│       └── *.env.j2
-├── files/
-│   ├── deploy.sh
-│   └── backup.sh
-├── pi/
-│   ├── pull-backups.sh
-│   └── alert-check.sh
-└── cron/
-    ├── deploy
-    └── backup
+│   └── all/
+│       ├── vars.yml        # App definitions, domains, ports
+│       └── vault.yml       # Encrypted secrets
+└── roles/
+    ├── preflight/          # Verify old prod is reachable
+    ├── base/               # apt, ufw, fail2ban, timezone
+    ├── user/               # jpnance user, SSH keys, sudo
+    ├── docker/             # Docker, daemon config, network
+    ├── chezmoi/            # Install chezmoi, apply dotfiles
+    ├── apps/               # Clone repos, .env templates, seed DBs, start containers
+    ├── backup/             # Backup scripts, cron job
+    ├── deploy/             # Auto-deploy script, cron job
+    ├── certs/              # Copy certs from old prod, install certbot
+    ├── nginx/              # Install nginx, vhost templates
+    └── cleanup/            # Remove temporary keys/configs
 ```
 
-## Next Steps
+## Running Specific Roles
 
-1. Scaffold directory structure
-2. Create `group_vars/all.yml` with app list
-3. Create `ansible-vault create group_vars/vault.yml`
-4. Build roles one at a time, test against throwaway Linode
-5. Add Pi backup scripts
+*(TODO: Add tags for faster partial runs)*
+
+## Pi Setup
+
+*(TODO: Add play for Raspberry Pi backup puller)*
