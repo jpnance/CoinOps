@@ -36,13 +36,6 @@ apps:
     domain: pickahit.coinflipper.org
     port: 2814
 
-  - name: The Untitled
-    slug: untitled
-    repo: https://github.com/jpnance/UNG
-    dest: UNG
-    domain: untitled.coinflipper.org
-    port: 8736
-
   - name: Primetime Soap Operas
     slug: pso
     repo: https://github.com/jpnance/PSO
