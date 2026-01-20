@@ -1,0 +1,7 @@
+---
+- name: Verify current production is reachable
+  command: ssh -o BatchMode=yes coinflipper.org echo "alive"
+  delegate_to: localhost
+  run_once: true
+  register: prod_check
+  failed_when: prod_check.rc != 0

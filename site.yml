@@ -1,4 +1,10 @@
 ---
+- name: Preflight checks
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - preflight
+
 - name: Bootstrap server
   hosts: servers
   remote_user: root
@@ -17,13 +23,4 @@
     - apps # Clone apps, install dependencies, and start Docker containers
     - certs # Copy existing SSL certificates from outgoing server and install certbot
     - nginx # Install nginx and set up virtual hosts for apps
-
-# Install SSL certificates
-- name: Install certificates
-  hosts: servers
-  remote_user: jpnance
-  gather_facts: false
-  tags: [certs, never]
-  roles:
-    - certs
-
+    - cleanup # Remove private key and special SSH configuration
