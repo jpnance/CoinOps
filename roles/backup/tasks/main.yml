@@ -1,0 +1,33 @@
+---
+- name: Create backups directory
+  file:
+    path: "/home/{{ admin_user }}/backups"
+    state: directory
+
+- name: Create per-app backup directories
+  file:
+    path: "/home/{{ admin_user }}/backups/{{ item.slug }}"
+    state: directory
+  loop: "{{ apps }}"
+
+- name: Create archives directory
+  file:
+    path: "/home/{{ admin_user }}/backups/archives"
+    state: directory
+
+- name: Template make-backups.sh
+  template:
+    src: make-backups.sh.j2
+    dest: "/home/{{ admin_user }}/backups/make-backups.sh"
+
+- name: Template per-app backup.sh
+  template:
+    src: backup.sh.j2
+    dest: "/home/{{ admin_user }}/backups/{{ item.slug }}/backup.sh"
+  loop: "{{ apps }}"
+
+- name: Schedule hourly backups
+  cron:
+    name: "hourly backup"
+    minute: "33"
+    job: "/usr/bin/bash /home/{{ admin_user }}/backups/make-backups.sh"

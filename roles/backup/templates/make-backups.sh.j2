@@ -1,0 +1,14 @@
+#!/bin/sh
+
+cd /home/{{ admin_user }}/backups
+
+rm -rf archives/
+mkdir archives
+
+{% for item in apps %}
+cd {{ item.slug }}
+bash backup.sh
+cp {{ item.slug }}.gz {{ item.slug }}.gz.meta ../archives/
+cd ..
+
+{% endfor %}
