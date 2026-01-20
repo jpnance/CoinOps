@@ -3,7 +3,7 @@
   shell: rsync -a --rsync-path="sudo rsync" coinflipper.org:/etc/letsencrypt/ /tmp/letsencrypt
 
 - name: Copy SSL certificates to final location
-  shell: mv /tmp/letsencrypt /etc/letsencrypt
+  shell: rsync -a /tmp/letsencrypt/ /etc/letsencrypt/
   become: true
 
 - name: Install certbot for auto-renewal
