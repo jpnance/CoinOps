@@ -1,0 +1,16 @@
+---
+- name: Create deploy directory
+  file:
+    path: "/home/{{ admin_user }}/deploy"
+    state: directory
+
+- name: Template deploy.sh
+  template:
+    src: deploy.sh.j2
+    dest: "/home/{{ admin_user }}/deploy/deploy.sh"
+
+- name: Schedule deploy check every 5 minutes
+  cron:
+    name: "auto-deploy"
+    minute: "*/5"
+    job: "/usr/bin/bash /home/{{ admin_user }}/deploy/deploy.sh"
