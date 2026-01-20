@@ -18,8 +18,30 @@
     mode: "0600"
   loop: "{{ apps }}"
 
+- name: Start mongo containers
+  command: docker compose up -d mongo
+  args:
+    chdir: "{{ apps_dir }}/{{ item.dest }}"
+  loop: "{{ apps }}"
+
+- name: Wait for mongod to be ready
+  command: docker compose exec -T mongo mongosh --eval "db.adminCommand('ping')"
+  args:
+    chdir: "{{ apps_dir }}/{{ item.dest }}"
+  register: mongo_ping
+  until: mongo_ping.rc == 0
+  retries: 30
+  delay: 1
+  loop: "{{ apps }}"
+
+- name: Seed app databases
+  shell: "ssh -o BatchMode=yes coinflipper.org cat ~/backups/{{ item.slug }}/{{ item.slug }}.gz | docker compose exec -T mongo mongorestore --drop --archive --gzip"
+  args:
+    chdir: "{{ apps_dir }}/{{ item.dest }}"
+  loop: "{{ apps }}"
+
 - name: Install dependencies with npm
-  command: "/home/{{ admin_user }}/bin/runt ci"
+  command: "docker compose run --rm web npm ci"
   args:
     chdir: "{{ apps_dir }}/{{ item.dest }}"
   loop: "{{ apps }}"

@@ -14,6 +14,9 @@
     append: true
   become: true
 
+- name: Reset SSH connection to pick up new group
+  meta: reset_connection
+
 - name: Configure Docker daemon
   copy:
     dest: /etc/docker/daemon.json
