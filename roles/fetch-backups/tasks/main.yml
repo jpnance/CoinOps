@@ -1,0 +1,17 @@
+---
+# These are unused for now
+- name: Create backups directory
+  file:
+    path: "/home/{{ admin_user }}/backups"
+    state: directory
+
+- name: Deploy fetch-backups.sh
+  copy:
+    src: fetch-backups.sh
+    dest: "/home/{{ admin_user }}/backups/fetch-backups.sh"
+
+- name: Schedule hourly backup fetch
+  cron:
+    name: "fetch backups"
+    minute: "0"
+    job: "/usr/bin/bash /home/{{ admin_user }}/backups/fetch-backups.sh"

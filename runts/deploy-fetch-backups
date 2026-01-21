@@ -1,0 +1,3 @@
+#!/bin/bash
+
+scp roles/fetch-backups/files/fetch-backups.sh smatterhorn.com:~/backups/
