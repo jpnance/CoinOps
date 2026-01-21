@@ -8,6 +8,11 @@ apps_dir: /home/{{ admin_user }}/apps
 
 docker_network: coinflipper
 
+ssh_pubkeys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKuTniiLi5+CqhwTFBIUCbBrN+BVkJvgMBbm83JkM6QF jpnance@countercheck"
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEX83/A/iIr0kjKky3yHQGK5hTHceBPheF/EZp6GoHF9 jpnance@salvage"
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIP2/rnsL5jNVgJSz8Gmrt3Jw9C5eaIDI7W5UuI/PRpH jpnance@lifeform"
+
 apps:
   - name: Coinflipper Login
     slug: login

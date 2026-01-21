@@ -8,11 +8,12 @@
     append: true
     create_home: true
 
-- name: Add SSH authorized key from Ansible computer
+- name: Add SSH authorized keys
   authorized_key:
     user: "{{ admin_user }}"
-    key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+    key: "{{ item }}"
     state: present
+  loop: "{{ ssh_pubkeys }}"
 
 - name: Add SSH private key to access the current production cloudbreak for database seeds
   copy:
