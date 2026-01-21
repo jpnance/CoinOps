@@ -16,3 +16,9 @@
     path: /tmp/letsencrypt
     state: absent
   become: true
+
+- name: Remove passwordless sudo
+  file:
+    path: /etc/sudoers.d/{{ admin_user }}
+    state: absent
+  become: true

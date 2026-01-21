@@ -1,5 +1,5 @@
 ---
-hostname: coin-ops-test
+hostname: cloudbreak
 
 admin_user: jpnance
 admin_email: jpnance@gmail.com
@@ -81,3 +81,8 @@ apps:
     domain: coinflipper.org
     type: static
     deploy_cmd: "true"
+
+  - name: BBGPBG
+    slug: bbgpbg
+    domain: props.coinflipper.org
+    type: upload

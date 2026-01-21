@@ -16,3 +16,11 @@
   loop: "{{ apps | selectattr('type', 'equalto', 'static') | list }}"
   loop_control:
     loop_var: app
+
+- name: Create directories for upload sites
+  file:
+    path: "{{ apps_dir }}/{{ app.slug }}"
+    state: directory
+  loop: "{{ apps | selectattr('type', 'equalto', 'upload') | list }}"
+  loop_control:
+    loop_var: app

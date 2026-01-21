@@ -25,6 +25,16 @@
   become: true
   notify: reload nginx
 
+- name: Template vhost configs for upload sites
+  template:
+    src: static-vhost.conf.j2
+    dest: "/etc/nginx/sites-available/{{ app.domain }}"
+  loop: "{{ apps | selectattr('type', 'equalto', 'upload') | list }}"
+  loop_control:
+    loop_var: app
+  become: true
+  notify: reload nginx
+
 - name: Enable vhosts
   file:
     src: "/etc/nginx/sites-available/{{ app.domain }}"

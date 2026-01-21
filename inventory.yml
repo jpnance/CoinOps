@@ -3,7 +3,7 @@ all:
   children:
     servers:
       hosts:
-        coin-ops-test:
+        cloudbreak:
           ansible_host: 192.155.87.84
 
     pi:
