@@ -24,3 +24,10 @@
   loop: "{{ apps | selectattr('type', 'equalto', 'upload') | list }}"
   loop_control:
     loop_var: app
+
+- name: Start scuttlebot container
+  shell: |
+    docker inspect scuttlebot > /dev/null 2>&1 || \
+    docker run -d --name scuttlebot --restart unless-stopped \
+      -v {{ apps_dir }}/pso:/app -w /app \
+      node:22-alpine node tools/bots/scuttlebot.js

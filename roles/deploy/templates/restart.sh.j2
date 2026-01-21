@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cd {{ apps_dir }}
+
+{% for app in apps | selectattr('type', 'equalto', 'node') %}
+cd {{ app.slug }}
+docker compose up -d
+cd ..
+
+{% endfor %}
+docker start scuttlebot

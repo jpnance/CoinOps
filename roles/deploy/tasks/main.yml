@@ -9,6 +9,11 @@
     src: deploy.sh.j2
     dest: "/home/{{ admin_user }}/deploy/deploy.sh"
 
+- name: Template restart.sh
+  template:
+    src: restart.sh.j2
+    dest: "/home/{{ admin_user }}/deploy/restart.sh"
+
 - name: Schedule deploy check every 5 minutes
   cron:
     name: "auto-deploy"
