@@ -24,6 +24,8 @@ Automate yearly fresh-start Linode rebuilds. From a blank Debian instance to ful
 
 ## Apps
 
+### Node Apps
+
 | App | Domain | Port | Repo |
 |-----|--------|------|------|
 | Coinflipper Login | login.coinflipper.org | 5422 | jpnance/CoinflipperLogin |
@@ -31,6 +33,19 @@ Automate yearly fresh-start Linode rebuilds. From a blank Debian instance to ful
 | Summer Classics | classics.coinflipper.org | 9895 | jpnance/SummerClassics |
 | Pick-a-Hit | pickahit.coinflipper.org | 2814 | jpnance/pickahit |
 | Primetime Soap Operas | thedynastyleague.com | 9528 | jpnance/PSO |
+
+### Static Sites
+
+| Site | Domain | Repo |
+|------|--------|------|
+| ProWriterAlpha | pwa.coinflipper.org | jpnance/ProWriterAlpha |
+| Coinflipper | coinflipper.org | jpnance/Coinflipper |
+
+### Upload Sites
+
+| Site | Domain | Notes |
+|------|--------|-------|
+| BBGPBG | props.coinflipper.org | Directory created, content uploaded manually |
 
 ## Key Decisions
 
@@ -54,7 +69,7 @@ Automate yearly fresh-start Linode rebuilds. From a blank Debian instance to ful
 4. Run `ansible-playbook site.yml`
    - **Preflight:** Verifies old prod is reachable (runs locally)
    - **Bootstrap (as root):** Installs packages, configures firewall, creates user, deploys seeder key
-   - **Configure (as jpnance):** Docker, chezmoi, app clones, database seeding, backups, deploy, certs, nginx
+   - **Configure (as jpnance):** Docker, chezmoi, app clones, database seeding, backups, ops scripts, certs, nginx
    - **Cleanup:** Removes seeder key and temporary configs
 5. Verify apps are running: `curl -k https://<new-ip>/ -H "Host: login.coinflipper.org"`
 6. Cut over DNS when ready
@@ -84,9 +99,9 @@ CoinOps/
 │   ├── user/               # jpnance user, SSH keys, sudo, seeder key
 │   ├── docker/             # Docker, daemon config, network
 │   ├── chezmoi/            # Install chezmoi, apply dotfiles
-│   ├── apps/               # Clone repos, .env templates, seed DBs, start containers
+│   ├── apps/               # Clone repos, .env templates, seed DBs, start containers, scuttlebot
 │   ├── make-backups/       # Backup scripts, cron job
-│   ├── deploy/             # Auto-deploy script, cron job
+│   ├── ops/                # deploy.sh, restart.sh, cron job
 │   ├── certs/              # Copy certs from old prod, install certbot
 │   ├── nginx/              # Install nginx, vhost templates
 │   ├── cleanup/            # Remove seeder key, temporary configs
