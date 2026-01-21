@@ -17,6 +17,9 @@
     state: absent
   become: true
 
+- name: Flush handlers before removing sudo access
+  meta: flush_handlers
+
 - name: Remove passwordless sudo
   file:
     path: /etc/sudoers.d/{{ admin_user }}

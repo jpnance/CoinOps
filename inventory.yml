@@ -5,9 +5,3 @@ all:
       hosts:
         cloudbreak:
           ansible_host: 192.155.87.84
-
-    pi:
-      hosts:
-        sherpa:
-          ansible_host: smatterhorn.com
-          ansible_user: jpnance
