@@ -12,8 +12,8 @@ apps:
   - name: Coinflipper Login
     slug: login
     repo: https://github.com/jpnance/CoinflipperLogin
-    dest: CoinflipperLogin
     domain: login.coinflipper.org
+    type: node
     port: 5422
     monotonic:
       - users
@@ -21,8 +21,8 @@ apps:
   - name: SubContest
     slug: subcontest
     repo: https://github.com/jpnance/SubContest
-    dest: SubContest
     domain: subcontest.coinflipper.org
+    type: node
     port: 7811
     monotonic:
       - games
@@ -31,8 +31,8 @@ apps:
   - name: Summer Classics
     slug: classix
     repo: https://github.com/jpnance/SummerClassics
-    dest: SummerClassics
     domain: classics.coinflipper.org
+    type: node
     port: 9895
     monotonic:
       - classics
@@ -43,8 +43,8 @@ apps:
   - name: Pick-a-Hit
     slug: pickahit
     repo: https://github.com/jpnance/pickahit
-    dest: pickahit
     domain: pickahit.coinflipper.org
+    type: node
     port: 2814
     monotonic:
       - games
@@ -54,8 +54,8 @@ apps:
   - name: Primetime Soap Operas
     slug: pso
     repo: https://github.com/jpnance/PSO
-    dest: PSO
     domain: thedynastyleague.com
+    type: node
     port: 9528
     monotonic:
       - budgets
@@ -67,3 +67,17 @@ apps:
       - players
       - regimes
       - transactions
+
+  - name: ProWriterAlpha
+    slug: pwa
+    repo: https://github.com/jpnance/ProWriterAlpha
+    domain: pwa.coinflipper.org
+    type: static
+    deploy_cmd: "true"
+
+  - name: Coinflipper
+    slug: coinflipper
+    repo: https://github.com/jpnance/Coinflipper
+    domain: coinflipper.org
+    type: static
+    deploy_cmd: "true"

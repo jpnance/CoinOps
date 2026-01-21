@@ -5,8 +5,14 @@
     state: directory
     mode: "0755"
 
-- name: Set up each app
+- name: Set up Node apps
   include_tasks: setup-app.yml
-  loop: "{{ apps }}"
+  loop: "{{ apps | selectattr('type', 'equalto', 'node') | list }}"
+  loop_control:
+    loop_var: app
+
+- name: Set up static sites
+  include_tasks: setup-static.yml
+  loop: "{{ apps | selectattr('type', 'equalto', 'static') | list }}"
   loop_control:
     loop_var: app

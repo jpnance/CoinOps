@@ -5,20 +5,34 @@
     state: present
   become: true
 
-- name: Template vhost configs
+- name: Template vhost configs for Node apps
   template:
     src: vhost.conf.j2
-    dest: "/etc/nginx/sites-available/{{ item.domain }}"
-  loop: "{{ apps }}"
+    dest: "/etc/nginx/sites-available/{{ app.domain }}"
+  loop: "{{ apps | selectattr('type', 'equalto', 'node') | list }}"
+  loop_control:
+    loop_var: app
+  become: true
+  notify: reload nginx
+
+- name: Template vhost configs for static sites
+  template:
+    src: static-vhost.conf.j2
+    dest: "/etc/nginx/sites-available/{{ app.domain }}"
+  loop: "{{ apps | selectattr('type', 'equalto', 'static') | list }}"
+  loop_control:
+    loop_var: app
   become: true
   notify: reload nginx
 
 - name: Enable vhosts
   file:
-    src: "/etc/nginx/sites-available/{{ item.domain }}"
-    dest: "/etc/nginx/sites-enabled/{{ item.domain }}"
+    src: "/etc/nginx/sites-available/{{ app.domain }}"
+    dest: "/etc/nginx/sites-enabled/{{ app.domain }}"
     state: link
   loop: "{{ apps }}"
+  loop_control:
+    loop_var: app
   become: true
   notify: reload nginx
 

@@ -1,0 +1,5 @@
+---
+- name: Clone {{ app.name }}
+  git:
+    repo: "{{ app.repo }}"
+    dest: "{{ apps_dir }}/{{ app.slug }}"

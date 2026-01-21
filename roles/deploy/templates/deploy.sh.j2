@@ -4,13 +4,13 @@ export PATH="${HOME}/bin:${PATH}"
 
 declare -A dirs=(
 {% for app in apps %}
-	["{{ app.dest }}"]="{{ apps_dir }}/{{ app.dest }}"
+	["{{ app.slug }}"]="{{ apps_dir }}/{{ app.slug }}"
 {% endfor %}
 )
 
 declare -A cmds=(
 {% for app in apps if app.deploy_cmd is defined %}
-	["{{ app.dest }}"]="{{ app.deploy_cmd }}"
+	["{{ app.slug }}"]="{{ app.deploy_cmd }}"
 {% endfor %}
 )
 
