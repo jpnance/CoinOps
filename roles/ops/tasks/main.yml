@@ -1,21 +1,21 @@
 ---
-- name: Create deploy directory
+- name: Create ops directory
   file:
-    path: "/home/{{ admin_user }}/deploy"
+    path: "{{ ops_dir }}"
     state: directory
 
 - name: Template deploy.sh
   template:
     src: deploy.sh.j2
-    dest: "/home/{{ admin_user }}/deploy/deploy.sh"
+    dest: "{{ ops_dir }}/deploy.sh"
 
 - name: Template restart.sh
   template:
     src: restart.sh.j2
-    dest: "/home/{{ admin_user }}/deploy/restart.sh"
+    dest: "{{ ops_dir }}/restart.sh"
 
 - name: Schedule deploy check every 5 minutes
   cron:
     name: "auto-deploy"
     minute: "*/5"
-    job: "/usr/bin/bash /home/{{ admin_user }}/deploy/deploy.sh"
+    job: "/usr/bin/bash {{ ops_dir }}/deploy.sh"

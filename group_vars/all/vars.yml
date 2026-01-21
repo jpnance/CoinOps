@@ -5,6 +5,7 @@ admin_user: jpnance
 admin_email: jpnance@gmail.com
 
 apps_dir: /home/{{ admin_user }}/apps
+ops_dir: /home/{{ admin_user }}/ops
 
 docker_network: coinflipper
 

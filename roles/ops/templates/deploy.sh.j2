@@ -15,7 +15,7 @@ declare -A cmds=(
 )
 
 default_cmd="docker compose run --rm --no-deps web npm ci && docker compose down && docker compose up -d"
-logfile="${HOME}/deploy/deploy.log"
+logfile="{{ ops_dir }}/logs/deploy.log"
 timestamp=$(date)
 
 notifications=()
