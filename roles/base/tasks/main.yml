@@ -30,11 +30,6 @@
   timezone:
     name: UTC
 
-- name: Enable ufw and deny incoming traffic by default
-  ufw:
-    state: enabled
-    policy: deny
-
 - name: Allow traffic on certain ports
   ufw:
     rule: allow
@@ -45,6 +40,11 @@
     - "2222" # ssh jumpbox
     - "80" # http
     - "443" # https
+
+- name: Enable ufw and deny incoming traffic by default
+  ufw:
+    state: enabled
+    policy: deny
 
 - name: Enable fail2ban
   service:
