@@ -1,0 +1,40 @@
+---
+- name: Clone {{ app.slug }} repository
+  git:
+    repo: "{{ app.repo }}"
+    dest: "{{ apps_dir }}/{{ app.dest }}"
+
+- name: Template .env for {{ app.slug }}
+  template:
+    src: "{{ app.slug }}.env.j2"
+    dest: "{{ apps_dir }}/{{ app.dest }}/.env"
+    mode: "0600"
+
+- name: Start mongo for {{ app.slug }}
+  command: docker compose up -d mongo
+  args:
+    chdir: "{{ apps_dir }}/{{ app.dest }}"
+
+- name: Wait for mongo in {{ app.slug }}
+  command: docker compose exec -T mongo mongosh --eval "db.adminCommand('ping')"
+  args:
+    chdir: "{{ apps_dir }}/{{ app.dest }}"
+  register: mongo_ping
+  until: mongo_ping.rc == 0
+  retries: 30
+  delay: 1
+
+- name: Seed database for {{ app.slug }}
+  shell: "ssh -o BatchMode=yes coinflipper.org cat ~/backups/{{ app.slug }}/{{ app.slug }}.gz | docker compose exec -T mongo mongorestore --drop --archive --gzip"
+  args:
+    chdir: "{{ apps_dir }}/{{ app.dest }}"
+
+- name: Install dependencies for {{ app.slug }}
+  command: "docker compose run --rm web npm ci"
+  args:
+    chdir: "{{ apps_dir }}/{{ app.dest }}"
+
+- name: Start containers for {{ app.slug }}
+  command: docker compose up -d --build
+  args:
+    chdir: "{{ apps_dir }}/{{ app.dest }}"
