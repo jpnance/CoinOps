@@ -7,6 +7,7 @@
 - name: Install base packages
   apt:
     name: 
+      - acl
       - fail2ban
       - git
       - jq

@@ -53,12 +53,6 @@
   become: true
   notify: reload nginx
 
-- name: Install acl package for setfacl
-  apt:
-    name: acl
-    state: present
-  become: true
-
 - name: Allow www-data to traverse home directory
   acl:
     path: "/home/{{ admin_user }}"
