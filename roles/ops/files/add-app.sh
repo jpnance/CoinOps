@@ -149,6 +149,16 @@ EOF
 	sudo ln -sf "${vhost_file}" /etc/nginx/sites-enabled/
 	sudo nginx -t && sudo systemctl reload nginx
 	echo "Nginx configured and reloaded."
+
+	# Set ACLs for static/upload sites so www-data can read content
+	if [ "${app_type}" = "static" ] || [ "${app_type}" = "upload" ]; then
+		root_path="${app_dir}"
+		[ -n "${root}" ] && root_path="${app_dir}/${root}"
+
+		echo "Setting ACLs on ${root_path}..."
+		sudo setfacl -R -m u:www-data:rx "${root_path}"
+		sudo setfacl -R -d -m u:www-data:rx "${root_path}"
+	fi
 fi
 
 # Create backup directory if backup_cmd is defined
