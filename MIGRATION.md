@@ -7,6 +7,7 @@ This documents the process for migrating to a new server.
 - New Linode provisioned with latest Debian
 - Root SSH access to the new server
 - Ansible vault password
+- DNS TTL lowered to 1 minute (do this a day before migration so old TTL expires from caches)
 
 ## Overview
 
@@ -50,10 +51,10 @@ Put the old production server into maintenance mode to prevent writes during mig
 - Nginx static maintenance page
 - Docker container stop
 
-Then update DNS to point to the new server's IP. Wait for propagation before proceeding - this ensures certbot can validate domains during Step 5.
+Then update DNS to point to the new server's IP. With TTL at 1 minute, propagation should be fast. Wait for it before proceeding - this ensures certbot can validate domains during Step 5.
 
 ```bash
-# Check propagation
+# Check propagation (should show new IP)
 dig +noall +answer coinflipper.org thedynastyleague.com
 ```
 
@@ -118,6 +119,7 @@ ls -la ~/backups/archives/
 
 ### Clean Up
 
+- Raise DNS TTL back to 30 minutes or 1 hour
 - Decommission old server once satisfied
 - Remove `~/seeds/` directory if no longer needed
 
