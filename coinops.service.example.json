@@ -1,0 +1,8 @@
+{
+  "#": "CoinOps config for services (bots, sidecars, etc.) - just a coinops.json in an otherwise empty directory",
+
+  "slug": "myservice",
+  "type": "service",
+
+  "up_cmd": "docker start myservice || docker run -d --name myservice --restart unless-stopped -v ~/apps/someapp:/app -w /app node:22-alpine node bot.js"
+}

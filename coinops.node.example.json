@@ -1,0 +1,18 @@
+{
+  "#": "CoinOps config for Node apps - see https://github.com/jpnance/CoinOps",
+
+  "slug": "myapp",
+  "domain": "myapp.coinflipper.org",
+  "port": 3000,
+  "type": "node",
+
+  "deploy_cmd": "docker compose run --rm --no-deps web npm ci && docker compose down && docker compose up -d",
+  "up_cmd": "docker compose up -d",
+  "backup_cmd": "docker exec myapp-mongo mongodump --archive --gzip > ~/backups/myapp/myapp.gz",
+
+  "#mongo_container": "For metadata generation (used with monotonic alerting)",
+  "mongo_container": "myapp-mongo",
+
+  "#monotonic": "Collections that should never shrink",
+  "monotonic": ["users", "games"]
+}

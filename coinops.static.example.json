@@ -1,0 +1,13 @@
+{
+  "#": "CoinOps config for static sites",
+
+  "slug": "mysite",
+  "domain": "mysite.coinflipper.org",
+  "type": "static",
+
+  "#root": "Directory within the repo to serve",
+  "root": "public",
+
+  "#deploy_cmd": "Use 'true' for no-op, or a build command if needed",
+  "deploy_cmd": "true"
+}

@@ -1,0 +1,10 @@
+{
+  "#": "CoinOps config for upload sites",
+
+  "slug": "uploads",
+  "domain": "uploads.coinflipper.org",
+  "type": "upload",
+
+  "#root": "Directory within the repo to serve",
+  "root": "public"
+}
