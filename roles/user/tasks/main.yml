@@ -15,29 +15,3 @@
     key: "{{ item }}"
     state: present
   loop: "{{ ssh_pubkeys }}"
-
-- name: Add SSH private key to access the current production cloudbreak for database seeds
-  copy:
-    content: "{{ vault_seeder_private_key }}"
-    dest: "/home/{{ admin_user }}/.ssh/seeder-key"
-    mode: "0600"
-    owner: "{{ admin_user }}"
-    group: "{{ admin_user }}"
-
-- name: Configure SSH to seed from current production cloudbreak with the seeder key
-  blockinfile:
-    path: "/home/{{ admin_user }}/.ssh/config"
-    create: true
-    mode: "0600"
-    owner: "{{ admin_user }}"
-    group: "{{ admin_user }}"
-    block: |
-      Host coinflipper.org
-        IdentityFile ~/.ssh/seeder-key
-        StrictHostKeyChecking accept-new
-
-- name: Add SSH authorized key from the future cloudbreak that wants to seed its databases
-  authorized_key:
-    user: "{{ admin_user }}"
-    key: "{{ vault_seeder_public_key }}"
-    state: present

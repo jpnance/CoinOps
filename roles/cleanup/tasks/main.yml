@@ -1,18 +1,3 @@
 # roles/cleanup/tasks/main.yml
 ---
-- name: Remove private seeder key
-  file:
-    path: "/home/{{ admin_user }}/.ssh/seeder-key"
-    state: absent
-
-- name: Remove SSH config for outgoing production
-  blockinfile:
-    path: "/home/{{ admin_user }}/.ssh/config"
-    state: absent
-    marker: "# {mark} ANSIBLE MANAGED BLOCK"
-
-- name: Clean up temp cert files
-  file:
-    path: /tmp/letsencrypt
-    state: absent
-  become: true
+# Nothing to clean up currently - kept for future use

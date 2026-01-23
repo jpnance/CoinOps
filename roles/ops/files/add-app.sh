@@ -58,6 +58,31 @@ if [ "${app_type}" = "node" ]; then
 	fi
 fi
 
+# Seed database for node apps
+seeds_dir="${HOME}/seeds"
+if [ "${app_type}" = "node" ] && [ -d "${seeds_dir}" ]; then
+	echo ""
+	echo "Available seed files:"
+	ls -1 "${seeds_dir}"/*.gz 2>/dev/null || echo "  (none found)"
+	echo ""
+	read -p "Seed database from backup? Enter filename or leave blank to skip: " seed_file
+	if [ -n "${seed_file}" ]; then
+		seed_path="${seeds_dir}/${seed_file}"
+		if [ -f "${seed_path}" ]; then
+			mongo_container=$(jq -r '.mongo_container // empty' "${config}")
+			if [ -n "${mongo_container}" ]; then
+				echo "Restoring from ${seed_file}..."
+				gunzip -c "${seed_path}" | docker exec -i "${mongo_container}" mongorestore --archive --drop
+				echo "Database seeded."
+			else
+				echo "Warning: No mongo_container defined in coinops.json. Skipping seed."
+			fi
+		else
+			echo "Warning: ${seed_path} not found. Skipping seed."
+		fi
+	fi
+fi
+
 # Get SSL certificate
 if [ -n "${domain}" ]; then
 	echo ""

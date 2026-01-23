@@ -1,16 +1,7 @@
 ---
-- name: Sync SSL certificates from current production to a temporary location
-  shell: rsync -a coinflipper.org:/etc/letsencrypt/ /tmp/letsencrypt
-
-- name: Copy SSL certificates to final location
-  shell: rsync -a /tmp/letsencrypt/ /etc/letsencrypt/
-  become: true
-
-- name: Install certbot for auto-renewal
+- name: Install certbot
   apt:
-    name:
-      - certbot
-      - python3-certbot-nginx
+    name: certbot
     state: present
   become: true
 
@@ -19,10 +10,4 @@
     name: certbot.timer
     state: started
     enabled: true
-  become: true
-
-- name: Make certs readable by admin user for future migrations
-  shell: |
-    setfacl -R -m u:{{ admin_user }}:rX /etc/letsencrypt
-    setfacl -R -d -m u:{{ admin_user }}:rX /etc/letsencrypt
   become: true
