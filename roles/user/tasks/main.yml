@@ -2,6 +2,7 @@
 - name: Create admin user
   user:
     name: "{{ admin_user }}"
+    password: "{{ vault_admin_password }}"
     shell: /bin/bash
     groups:
       - sudo
@@ -40,11 +41,3 @@
     user: "{{ admin_user }}"
     key: "{{ vault_seeder_public_key }}"
     state: present
-
-- name: Allow passwordless sudo
-  lineinfile:
-    path: /etc/sudoers.d/{{ admin_user }}
-    line: "{{ admin_user }} ALL=(ALL) NOPASSWD:ALL"
-    create: true
-    mode: "0440"
-    validate: "visudo -cf %s"
