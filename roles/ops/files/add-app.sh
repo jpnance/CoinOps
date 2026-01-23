@@ -246,6 +246,9 @@ EOF
 
 		mkdir -p "${root_path}"
 		echo "Setting ACLs on ${root_path}..."
+		# Allow www-data to traverse into app directory
+		sudo setfacl -m u:www-data:x "${app_dir}"
+		# Allow www-data to read content
 		sudo setfacl -R -m u:www-data:rx "${root_path}"
 		sudo setfacl -R -d -m u:www-data:rx "${root_path}"
 	fi

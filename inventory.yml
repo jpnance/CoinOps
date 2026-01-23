@@ -4,4 +4,4 @@ all:
     servers:
       hosts:
         cloudbreak:
-          ansible_host: 192.155.87.84
+          ansible_host: 172.234.246.5
