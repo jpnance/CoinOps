@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 backup_dir="/home/jpnance/backups"
 monthly_dir="${backup_dir}/monthly"
 date=$(date +"%Y-%m-%d")
@@ -17,7 +15,15 @@ scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null jpnance@coinflip
 alerts=()
 dbs=()
 
-for file in *.gz; do
+shopt -s nullglob
+files=(*.gz)
+
+if [ ${#files[@]} -eq 0 ]; then
+	curl -s -d "🚨 Backup fetch failed: no files transferred" ntfy.sh/coinflipper > /dev/null
+	exit 1
+fi
+
+for file in "${files[@]}"; do
 	db="${file%.gz}"
 	dbs+=("${db}")
 
