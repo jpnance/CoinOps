@@ -3,6 +3,7 @@ hostname: cloudbreak
 
 admin_user: jpnance
 admin_email: jpnance@gmail.com
+ansible_become_password: "{{ vault_admin_password_plaintext }}"
 
 apps_dir: /home/{{ admin_user }}/apps
 ops_dir: /home/{{ admin_user }}/ops

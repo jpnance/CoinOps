@@ -30,10 +30,8 @@ servers:
 ## Step 2: Run Ansible Playbook
 
 ```bash
-ansible-playbook site.yml --ask-become-pass
+ansible-playbook site.yml
 ```
-
-Enter your admin password when prompted for BECOME password.
 
 This provisions:
 - Admin user with sudo access

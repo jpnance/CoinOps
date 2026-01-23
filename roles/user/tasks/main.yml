@@ -2,7 +2,7 @@
 - name: Create admin user
   user:
     name: "{{ admin_user }}"
-    password: "{{ vault_admin_password }}"
+    password: "{{ vault_admin_password_hash }}"
     shell: /bin/bash
     groups:
       - sudo
