@@ -7,7 +7,7 @@ This documents the process for migrating to a new server.
 - New Linode provisioned with latest Debian
 - Root SSH access to the new server
 - Ansible vault password
-- DNS TTL lowered to 1 minute (do this a day before migration so old TTL expires from caches)
+- DNS TTL lowered to 1 minute (do this before migration, wait for old TTL to expire from caches)
 
 ## Overview
 
