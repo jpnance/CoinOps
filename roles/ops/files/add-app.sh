@@ -233,6 +233,9 @@ EOF
 		[ -n "${root}" ] && root_path="${app_dir}/${root}"
 
 		mkdir -p "${root_path}"
+		if [ ! -f "${root_path}/index.html" ]; then
+			echo "<html><body><h1>${slug} is ready</h1><p>Awaiting content.</p></body></html>" > "${root_path}/index.html"
+		fi
 		echo "Setting ACLs on ${root_path}..."
 		# Allow www-data to traverse into app directory
 		sudo setfacl -m u:www-data:x "${app_dir}"
