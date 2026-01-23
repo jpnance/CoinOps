@@ -5,47 +5,6 @@
     state: present
   become: true
 
-- name: Template vhost configs for Node apps
-  template:
-    src: vhost.conf.j2
-    dest: "/etc/nginx/sites-available/{{ app.domain }}"
-  loop: "{{ apps | selectattr('type', 'equalto', 'node') | list }}"
-  loop_control:
-    loop_var: app
-  become: true
-  notify: reload nginx
-
-- name: Template vhost configs for static sites
-  template:
-    src: static-vhost.conf.j2
-    dest: "/etc/nginx/sites-available/{{ app.domain }}"
-  loop: "{{ apps | selectattr('type', 'equalto', 'static') | list }}"
-  loop_control:
-    loop_var: app
-  become: true
-  notify: reload nginx
-
-- name: Template vhost configs for upload sites
-  template:
-    src: static-vhost.conf.j2
-    dest: "/etc/nginx/sites-available/{{ app.domain }}"
-  loop: "{{ apps | selectattr('type', 'equalto', 'upload') | list }}"
-  loop_control:
-    loop_var: app
-  become: true
-  notify: reload nginx
-
-- name: Enable vhosts
-  file:
-    src: "/etc/nginx/sites-available/{{ app.domain }}"
-    dest: "/etc/nginx/sites-enabled/{{ app.domain }}"
-    state: link
-  loop: "{{ apps }}"
-  loop_control:
-    loop_var: app
-  become: true
-  notify: reload nginx
-
 - name: Remove default vhost
   file:
     path: /etc/nginx/sites-enabled/default
@@ -69,17 +28,4 @@
     etype: user
     permissions: x
     state: present
-  become: true
-
-- name: Allow www-data to read static site directories
-  acl:
-    path: "{{ apps_dir }}/{{ app.slug }}"
-    entity: www-data
-    etype: user
-    permissions: rx
-    recursive: true
-    state: present
-  loop: "{{ apps | selectattr('type', 'in', ['static', 'upload']) | list }}"
-  loop_control:
-    loop_var: app
   become: true

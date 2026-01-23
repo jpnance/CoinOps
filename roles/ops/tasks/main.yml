@@ -4,15 +4,25 @@
     path: "{{ ops_dir }}"
     state: directory
 
-- name: Template deploy.sh
-  template:
-    src: deploy.sh.j2
+- name: Create ops logs directory
+  file:
+    path: "{{ ops_dir }}/logs"
+    state: directory
+
+- name: Copy deploy.sh
+  copy:
+    src: deploy.sh
     dest: "{{ ops_dir }}/deploy.sh"
 
-- name: Template restart.sh
-  template:
-    src: restart.sh.j2
-    dest: "{{ ops_dir }}/restart.sh"
+- name: Copy up.sh
+  copy:
+    src: up.sh
+    dest: "{{ ops_dir }}/up.sh"
+
+- name: Copy add-app.sh
+  copy:
+    src: add-app.sh
+    dest: "{{ ops_dir }}/add-app.sh"
 
 - name: Schedule deploy check every 5 minutes
   cron:
