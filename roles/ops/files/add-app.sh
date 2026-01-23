@@ -244,6 +244,7 @@ EOF
 		root_path="${app_dir}"
 		[ -n "${root}" ] && root_path="${app_dir}/${root}"
 
+		mkdir -p "${root_path}"
 		echo "Setting ACLs on ${root_path}..."
 		sudo setfacl -R -m u:www-data:rx "${root_path}"
 		sudo setfacl -R -d -m u:www-data:rx "${root_path}"
