@@ -15,8 +15,9 @@ app_dir="${apps_dir}/${slug}"
 
 # Clone if directory doesn't exist
 if [ ! -d "${app_dir}" ]; then
-	read -p "Git repo [https://github.com/jpnance/${slug}]: " repo
-	repo="${repo:-https://github.com/jpnance/${slug}}"
+	read -p "GitHub repo name [${slug}]: " repo_name
+	repo_name="${repo_name:-${slug}}"
+	repo="https://github.com/jpnance/${repo_name}"
 
 	echo "Cloning ${repo}..."
 	git clone "${repo}" "${app_dir}"
@@ -58,27 +59,44 @@ if [ "${app_type}" = "node" ]; then
 	fi
 fi
 
+# Run deploy command to build the app
+deploy_cmd=$(jq -r '.deploy_cmd // empty' "${config}")
+if [ -n "${deploy_cmd}" ]; then
+	echo ""
+	echo "Running deploy command..."
+	eval "${deploy_cmd}"
+fi
+
 # Seed database for node apps
 seeds_dir="${HOME}/seeds"
 if [ "${app_type}" = "node" ] && [ -d "${seeds_dir}" ]; then
-	echo ""
-	echo "Available seed files:"
-	ls -1 "${seeds_dir}"/*.gz 2>/dev/null || echo "  (none found)"
-	echo ""
-	read -p "Seed database from backup? Enter filename or leave blank to skip: " seed_file
-	if [ -n "${seed_file}" ]; then
-		seed_path="${seeds_dir}/${seed_file}"
-		if [ -f "${seed_path}" ]; then
-			mongo_container=$(jq -r '.mongo_container // empty' "${config}")
-			if [ -n "${mongo_container}" ]; then
-				echo "Restoring from ${seed_file}..."
-				gunzip -c "${seed_path}" | docker exec -i "${mongo_container}" mongorestore --archive --drop
-				echo "Database seeded."
-			else
-				echo "Warning: No mongo_container defined in coinops.json. Skipping seed."
-			fi
-		else
-			echo "Warning: ${seed_path} not found. Skipping seed."
+	seed_files=("${seeds_dir}"/*.gz)
+	if [ -f "${seed_files[0]}" ]; then
+		mongo_container=$(jq -r '.mongo_container // empty' "${config}")
+		if [ -n "${mongo_container}" ]; then
+			echo ""
+			echo "Select a seed file (or skip):"
+			saved_columns="${COLUMNS}"
+			COLUMNS=1
+			select seed_path in "${seed_files[@]}" "Skip"; do
+				if [ "${seed_path}" = "Skip" ] || [ -z "${seed_path}" ]; then
+					echo "Skipping database seed."
+					break
+				fi
+				if [ -f "${seed_path}" ]; then
+					echo "Starting mongo container..."
+					docker compose up -d mongo
+					until docker compose exec -T mongo mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; do
+						echo "Waiting for mongo..."
+						sleep 1
+					done
+					echo "Restoring from ${seed_path}..."
+					gunzip -c "${seed_path}" | docker exec -i "${mongo_container}" mongorestore --archive --drop
+					echo "Database seeded."
+				fi
+				break
+			done
+			COLUMNS="${saved_columns}"
 		fi
 	fi
 fi
@@ -101,7 +119,8 @@ if [ -n "${domain}" ]; then
 
 	if [ "${app_type}" = "node" ]; then
 		# Proxy vhost for node apps
-		sudo tee "${vhost_file}" > /dev/null <<EOF
+		if [ "${do_cert}" = "y" ]; then
+			sudo tee "${vhost_file}" > /dev/null <<EOF
 server {
 	listen 80;
 	server_name ${domain};
@@ -134,12 +153,37 @@ server {
 	}
 }
 EOF
+		else
+			sudo tee "${vhost_file}" > /dev/null <<EOF
+server {
+	listen 80;
+	server_name ${domain};
+
+	access_log /var/log/nginx/${domain}.access.log;
+	error_log /var/log/nginx/${domain}.error.log;
+
+	gzip on;
+
+	location / {
+		proxy_pass http://localhost:${port};
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade \$http_upgrade;
+		proxy_set_header Connection 'upgrade';
+		proxy_set_header Host \$host;
+		proxy_set_header X-Real-IP \$remote_addr;
+		proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+		proxy_cache_bypass \$http_upgrade;
+	}
+}
+EOF
+		fi
 	else
 		# Static vhost for static/upload sites
 		root_path="${app_dir}"
 		[ -n "${root}" ] && root_path="${app_dir}/${root}"
 
-		sudo tee "${vhost_file}" > /dev/null <<EOF
+		if [ "${do_cert}" = "y" ]; then
+			sudo tee "${vhost_file}" > /dev/null <<EOF
 server {
 	listen 80;
 	server_name ${domain};
@@ -168,6 +212,26 @@ server {
 	}
 }
 EOF
+		else
+			sudo tee "${vhost_file}" > /dev/null <<EOF
+server {
+	listen 80;
+	server_name ${domain};
+
+	root ${root_path};
+	index index.html;
+
+	access_log /var/log/nginx/${domain}.access.log;
+	error_log /var/log/nginx/${domain}.error.log;
+
+	gzip on;
+
+	location / {
+		try_files \$uri \$uri/ =404;
+	}
+}
+EOF
+		fi
 	fi
 
 	# Enable the site
@@ -205,4 +269,10 @@ fi
 
 echo ""
 echo "Done! ${slug} is set up."
-[ -n "${domain}" ] && echo "Visit: https://${domain}"
+if [ -n "${domain}" ]; then
+	if [ "${do_cert}" = "y" ]; then
+		echo "Visit: https://${domain}"
+	else
+		echo "Visit: http://${domain} (no SSL configured)"
+	fi
+fi
