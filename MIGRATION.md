@@ -47,9 +47,10 @@ This provisions:
 
 Put the old production server into maintenance mode to prevent writes during migration.
 
-**TODO**: Figure out how to do maintenance mode. Options:
-- Nginx static maintenance page
-- Docker container stop
+```bash
+# On old server
+sudo systemctl stop nginx
+```
 
 Then update DNS to point to the new server's IP. With TTL at 1 minute, propagation should be fast. Wait for it before proceeding - this ensures certbot can validate domains during Step 5.
 
