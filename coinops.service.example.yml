@@ -2,6 +2,7 @@
 # A service is just a coinops.yml in an otherwise empty directory.
 # Ops scripts only read coinops.yml — they never parse .env or other files.
 
+slug: myservice
 type: service
 
 up_cmd: |

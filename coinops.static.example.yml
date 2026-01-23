@@ -1,6 +1,7 @@
 # coinops.yml template for static sites
 # Ops scripts only read coinops.yml — they never parse .env or other files.
 
+slug: mysite
 domain: mysite.coinflipper.org
 type: static
 
