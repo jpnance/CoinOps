@@ -1,0 +1,8 @@
+# coinops.yml template for upload sites
+# Ops scripts only read coinops.yml — they never parse .env or other files.
+
+domain: uploads.coinflipper.org
+type: upload
+
+# Directory within the repo to serve
+root: public

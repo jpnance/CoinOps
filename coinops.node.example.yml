@@ -1,0 +1,15 @@
+# coinops.yml template for Node apps
+# Ops scripts only read coinops.yml — they never parse .env or other files.
+
+domain: myapp.coinflipper.org
+port: 3000
+type: node
+
+deploy_cmd: "docker compose run --rm --no-deps web npm ci && docker compose down && docker compose up -d"
+up_cmd: "docker compose up -d"
+backup_cmd: "docker exec myapp-mongo mongodump --archive --gzip > ~/backups/myapp/myapp.gz"
+
+# Mongo-specific: collections that should never shrink (for alerting)
+monotonic:
+  - users
+  - games

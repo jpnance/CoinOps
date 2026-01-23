@@ -1,0 +1,10 @@
+# coinops.yml template for services (bots, sidecars, etc.)
+# A service is just a coinops.yml in an otherwise empty directory.
+# Ops scripts only read coinops.yml — they never parse .env or other files.
+
+type: service
+
+up_cmd: |
+  docker start myservice || \
+  docker run -d --name myservice --restart unless-stopped \
+    -v ~/apps/someapp:/app -w /app node:22-alpine node bot.js
