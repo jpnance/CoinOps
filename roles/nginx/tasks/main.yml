@@ -21,6 +21,11 @@
     state: present
   become: true
 
+- name: Create apps directory
+  file:
+    path: "{{ apps_dir }}"
+    state: directory
+
 - name: Allow www-data to traverse apps directory
   acl:
     path: "{{ apps_dir }}"
