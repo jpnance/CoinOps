@@ -12,10 +12,9 @@ This documents the process for migrating to a new server.
 
 1. Prepare new server inventory
 2. Run Ansible playbook to provision infrastructure
-3. Put old server into maintenance mode
+3. Maintenance mode on old server + DNS cutover
 4. Transfer database backups from old server
-5. Add each app using `add-app.sh`
-6. Update DNS
+5. Add each app using `add-app.sh` (certbot works because DNS already points here)
 
 ## Step 1: Update Inventory
 
@@ -45,14 +44,20 @@ This provisions:
 - Ops scripts (`deploy.sh`, `up.sh`, `add-app.sh`)
 - Backup infrastructure
 
-## Step 3: Maintenance Mode
+## Step 3: Maintenance Mode and DNS Cutover
 
 Put the old production server into maintenance mode to prevent writes during migration.
 
-**TODO**: Figure out how to do this. Options:
+**TODO**: Figure out how to do maintenance mode. Options:
 - Nginx static maintenance page
 - Docker container stop
-- DNS-level redirect
+
+Then update DNS to point to the new server's IP. Wait for propagation before proceeding - this ensures certbot can validate domains during Step 5.
+
+```bash
+# Check propagation
+dig +noall +answer coinflipper.org thedynastyleague.com
+```
 
 ## Step 4: Transfer Database Backups
 
@@ -98,10 +103,6 @@ For each app, the script will:
 - **static**: Static sites served directly by nginx
 - **upload**: Manually uploaded content served by nginx
 - **service**: Background services (manually configured)
-
-## Step 6: Update DNS
-
-Once all apps are running and verified, update DNS records to point to the new server's IP.
 
 ## Post-Migration
 
