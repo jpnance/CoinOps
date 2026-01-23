@@ -106,7 +106,7 @@ if [ -n "${domain}" ]; then
 	echo ""
 	read -p "Obtain SSL certificate for ${domain}? (y/n): " do_cert
 	if [ "${do_cert}" = "y" ]; then
-		sudo certbot certonly --standalone -d "${domain}"
+		sudo certbot certonly --webroot -w /var/www/letsencrypt -d "${domain}"
 	fi
 fi
 
@@ -121,12 +121,6 @@ if [ -n "${domain}" ]; then
 		# Proxy vhost for node apps
 		if [ "${do_cert}" = "y" ]; then
 			sudo tee "${vhost_file}" > /dev/null <<EOF
-server {
-	listen 80;
-	server_name ${domain};
-	return 301 https://\$server_name\$request_uri;
-}
-
 server {
 	listen 443 ssl;
 	server_name ${domain};
@@ -184,12 +178,6 @@ EOF
 
 		if [ "${do_cert}" = "y" ]; then
 			sudo tee "${vhost_file}" > /dev/null <<EOF
-server {
-	listen 80;
-	server_name ${domain};
-	return 301 https://\$server_name\$request_uri;
-}
-
 server {
 	listen 443 ssl;
 	server_name ${domain};

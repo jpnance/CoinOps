@@ -12,6 +12,33 @@
   become: true
   notify: reload nginx
 
+- name: Create ACME/redirect default vhost
+  copy:
+    dest: /etc/nginx/sites-available/default-acme
+    content: |
+      server {
+          listen 80 default_server;
+          server_name _;
+
+          location /.well-known/acme-challenge/ {
+              root /var/www/letsencrypt;
+          }
+
+          location / {
+              return 301 https://$host$request_uri;
+          }
+      }
+  become: true
+  notify: reload nginx
+
+- name: Enable ACME/redirect vhost
+  file:
+    src: /etc/nginx/sites-available/default-acme
+    dest: /etc/nginx/sites-enabled/default-acme
+    state: link
+  become: true
+  notify: reload nginx
+
 - name: Allow www-data to traverse home directory
   acl:
     path: "/home/{{ admin_user }}"

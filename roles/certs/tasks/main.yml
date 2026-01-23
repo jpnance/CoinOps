@@ -18,6 +18,12 @@
     state: directory
   become: true
 
+- name: Create ACME challenge webroot
+  file:
+    path: /var/www/letsencrypt/.well-known/acme-challenge
+    state: directory
+  become: true
+
 - name: Download SSL options config
   get_url:
     url: https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf
