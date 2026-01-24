@@ -263,13 +263,18 @@ if [ -n "${backup_cmd}" ]; then
 	echo "Created backup directory: ${backups_dir}/${slug}"
 fi
 
-# Start containers for node apps
-if [ "${app_type}" = "node" ]; then
+# Start containers/service
+if [ "${app_type}" = "node" ] || [ "${app_type}" = "service" ]; then
+	up_cmd=$(jq -r '.up_cmd // empty' "${config}")
 	echo ""
-	read -p "Start containers now? (y/n): " do_start
+	read -p "Start now? (y/n): " do_start
 	if [ "${do_start}" = "y" ]; then
-		docker compose up -d
-		echo "Containers started."
+		if [ -n "${up_cmd}" ]; then
+			eval "${up_cmd}"
+		else
+			docker compose up -d
+		fi
+		echo "Started."
 	fi
 fi
 
