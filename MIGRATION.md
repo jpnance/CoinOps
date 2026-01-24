@@ -8,6 +8,7 @@ This documents the process for migrating to a new server.
 - Root SSH access to the new server
 - Ansible vault password
 - DNS TTL lowered to 1 minute (do this before migration, wait for old TTL to expire from caches)
+- Optional: Create `old.coinflipper.org` A record pointing to old server IP for command-line convenience (flip to new IP or remove after migration)
 
 ## Overview
 
@@ -122,6 +123,7 @@ ls -la ~/backups/archives/
 ### Clean Up
 
 - Raise DNS TTL back to 30 minutes or 1 hour
+- Remove `old.coinflipper.org` DNS record (easy to re-add next migration)
 - Decommission old server once satisfied
 - Remove `~/seeds/` directory if no longer needed
 - Remove `~/envs/` directory if no longer needed
