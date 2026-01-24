@@ -1,11 +1,15 @@
 #!/bin/bash
 
 declare -A sites=(
+	["pso"]="https://thedynastyleague.com/"
+	["coinflipper"]="https://coinflipper.org/"
 	["login"]="https://login.coinflipper.org/"
 	["classix"]="https://classics.coinflipper.org/"
 	["subcontest"]="https://subcontest.coinflipper.org/"
 	["pickahit"]="https://pickahit.coinflipper.org/"
 	["pso"]="https://thedynastyleague.com/"
+	["bbgpbg"]="https://props.coinflipper.org/"
+	["pwa"]="https://pwa.coinflipper.org/"
 )
 
 for name in "${!sites[@]}"; do
