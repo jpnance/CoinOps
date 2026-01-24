@@ -116,11 +116,11 @@ usermod -aG docker "${ADMIN_USER}"
 echo "==> Configuring Docker daemon..."
 cat > /etc/docker/daemon.json <<'EOF'
 {
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "10m",
-    "max-file": "3"
-  }
+	"log-driver": "json-file",
+	"log-opts": {
+		"max-size": "10m",
+		"max-file": "3"
+	}
 }
 EOF
 
@@ -163,16 +163,16 @@ rm -f /etc/nginx/sites-enabled/default
 
 cat > /etc/nginx/sites-available/default-acme <<'EOF'
 server {
-    listen 80 default_server;
-    server_name _;
+	listen 80 default_server;
+	server_name _;
 
-    location /.well-known/acme-challenge/ {
-        root /var/www/letsencrypt;
-    }
+	location /.well-known/acme-challenge/ {
+		root /var/www/letsencrypt;
+	}
 
-    location / {
-        return 301 https://$host$request_uri;
-    }
+	location / {
+		return 301 https://$host$request_uri;
+	}
 }
 EOF
 
@@ -204,14 +204,17 @@ chezmoi_config_dir="${admin_home}/.config/chezmoi"
 mkdir -p "${chezmoi_config_dir}"
 
 cat > "${chezmoi_config_dir}/chezmoi.toml" <<'EOF'
+[edit]
+watch = true
+
 [data]
 tags = [
-  "bash",
-  "git",
-  "mrpretty",
-  "production",
-  "runt",
-  "vim"
+	"bash",
+	"git",
+	"mrpretty",
+	"production",
+	"runt",
+	"vim"
 ]
 EOF
 
