@@ -4,6 +4,19 @@ set -e
 
 apps_dir="${HOME}/apps"
 backups_dir="${HOME}/backups"
+seeds_dir="${HOME}/seeds"
+envs_dir="${HOME}/envs"
+
+# Warn if seeds/envs directories don't exist
+if [ ! -d "${seeds_dir}" ] || [ ! -d "${envs_dir}" ]; then
+	echo "Warning: Migration directories not found:"
+	[ ! -d "${seeds_dir}" ] && echo "  - ${seeds_dir} (database backups)"
+	[ ! -d "${envs_dir}" ] && echo "  - ${envs_dir} (environment files)"
+	echo "Did you forget to transfer them from the old server?"
+	read -p "Continue anyway? (y/n): " do_continue
+	[ "${do_continue}" != "y" ] && exit 0
+	echo ""
+fi
 
 # Get app slug
 slug="${1}"
@@ -52,7 +65,6 @@ echo "  Type: ${app_type}"
 [ -n "${root}" ] && echo "  Root: ${root}"
 
 # For node apps, set up .env
-envs_dir="${HOME}/envs"
 if [ "${app_type}" = "node" ] && [ ! -f ".env" ]; then
 	if [ -f "${envs_dir}/${slug}.env" ]; then
 		echo ""
@@ -83,35 +95,22 @@ if [ -n "${deploy_cmd}" ]; then
 fi
 
 # Seed database for node apps
-seeds_dir="${HOME}/seeds"
-if [ "${app_type}" = "node" ] && [ -d "${seeds_dir}" ]; then
-	seed_files=("${seeds_dir}"/*.gz)
-	if [ -f "${seed_files[0]}" ]; then
-		mongo_container=$(jq -r '.mongo_container // empty' "${config}")
-		if [ -n "${mongo_container}" ]; then
-			echo ""
-			echo "Select a seed file (or skip):"
-			saved_columns="${COLUMNS}"
-			COLUMNS=1
-			select seed_path in "${seed_files[@]}" "Skip"; do
-				if [ "${seed_path}" = "Skip" ] || [ -z "${seed_path}" ]; then
-					echo "Skipping database seed."
-					break
-				fi
-				if [ -f "${seed_path}" ]; then
-					echo "Starting mongo container..."
-					docker compose up -d mongo
-					until docker compose exec -T mongo mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; do
-						echo "Waiting for mongo..."
-						sleep 1
-					done
-					echo "Restoring from ${seed_path}..."
-					gunzip -c "${seed_path}" | docker exec -i "${mongo_container}" mongorestore --archive --drop
-					echo "Database seeded."
-				fi
-				break
+seed_file="${seeds_dir}/${slug}.gz"
+if [ "${app_type}" = "node" ] && [ -f "${seed_file}" ]; then
+	mongo_container=$(jq -r '.mongo_container // empty' "${config}")
+	if [ -n "${mongo_container}" ]; then
+		echo ""
+		read -p "Seed database from ${seed_file}? (y/n): " do_seed
+		if [ "${do_seed}" = "y" ]; then
+			echo "Starting mongo container..."
+			docker compose up -d mongo
+			until docker compose exec -T mongo mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; do
+				echo "Waiting for mongo..."
+				sleep 1
 			done
-			COLUMNS="${saved_columns}"
+			echo "Restoring from ${seed_file}..."
+			gunzip -c "${seed_file}" | docker exec -i "${mongo_container}" mongorestore --archive --drop
+			echo "Database seeded."
 		fi
 	fi
 fi
