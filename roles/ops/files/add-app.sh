@@ -58,6 +58,10 @@ if [ "${app_type}" = "node" ] && [ ! -f ".env" ]; then
 		echo ""
 		echo "Using .env from ${envs_dir}/${slug}.env"
 		cp "${envs_dir}/${slug}.env" .env
+		if [ -f ".env.example" ]; then
+			echo "Opening vimdiff to compare with .env.example..."
+			vimdiff .env .env.example
+		fi
 	elif [ -f ".env.example" ]; then
 		cp .env.example .env
 		echo ""
