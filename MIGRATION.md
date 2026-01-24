@@ -59,24 +59,24 @@ Then update DNS to point to the new server's IP. With TTL at 1 minute, propagati
 dig +noall +answer coinflipper.org thedynastyleague.com
 ```
 
-## Step 4: Transfer Database Backups
+## Step 4: Transfer Backups and Environment Files
 
-From your local machine, pull backups from old production and push to new:
-
-```bash
-# Pull from old server
-scp oldserver:backups/archives/*.gz ~/migration-seeds/
-
-# Push to new server
-scp ~/migration-seeds/*.gz newserver:seeds/
-```
-
-Or if you have direct access between servers:
+From your local machine, copy database backups:
 
 ```bash
-# From old server
-scp backups/archives/*.gz newserver:seeds/
+scp -r oldserver:backups/archives newserver:seeds
 ```
+
+Copy environment files for each app:
+
+```bash
+for slug in login pso classix pickahit subcontest; do
+  ssh oldserver "cat ~/apps/${slug}/.env" > ${slug}.env
+done
+scp *.env newserver:envs/
+```
+
+The `add-app.sh` script will use these automatically instead of prompting you to edit `.env.example`.
 
 ## Step 5: Add Apps
 
