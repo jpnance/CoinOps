@@ -71,7 +71,7 @@ Copy environment files for each app:
 
 ```bash
 for slug in login pso classix pickahit subcontest; do
-  ssh oldserver "cat ~/apps/${slug}/.env" > ${slug}.env
+  ssh oldserver "cat apps/${slug}/.env" > ${slug}.env
 done
 scp *.env newserver:envs/
 ```
@@ -112,9 +112,10 @@ The `deploy.sh` script runs every 5 minutes via cron. Push a change to verify it
 
 ### Verify Backups
 
-Check that hourly backups are running:
+Run the backup script manually and check the output:
 
 ```bash
+bash ~/backups/make-backups.sh
 ls -la ~/backups/archives/
 ```
 
@@ -123,6 +124,7 @@ ls -la ~/backups/archives/
 - Raise DNS TTL back to 30 minutes or 1 hour
 - Decommission old server once satisfied
 - Remove `~/seeds/` directory if no longer needed
+- Remove `~/envs/` directory if no longer needed
 
 ## Troubleshooting
 
