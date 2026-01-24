@@ -15,12 +15,18 @@ app_dir="${apps_dir}/${slug}"
 
 # Clone if directory doesn't exist
 if [ ! -d "${app_dir}" ]; then
-	read -p "GitHub repo name [${slug}]: " repo_name
-	repo_name="${repo_name:-${slug}}"
-	repo="https://github.com/jpnance/${repo_name}"
+	while true; do
+		read -p "GitHub repo name [${slug}]: " repo_name
+		repo_name="${repo_name:-${slug}}"
+		repo="https://github.com/jpnance/${repo_name}"
 
-	echo "Cloning ${repo}..."
-	git clone "${repo}" "${app_dir}"
+		echo "Cloning ${repo}..."
+		if git clone "${repo}" "${app_dir}"; then
+			break
+		else
+			echo "Couldn't clone ${repo}. Try again?"
+		fi
+	done
 fi
 
 cd "${app_dir}"
