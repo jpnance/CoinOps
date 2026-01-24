@@ -51,14 +51,19 @@ echo "  Type: ${app_type}"
 [ -n "${port}" ] && echo "  Port: ${port}"
 [ -n "${root}" ] && echo "  Root: ${root}"
 
-# For node apps, prompt to configure .env
-if [ "${app_type}" = "node" ]; then
-	if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+# For node apps, set up .env
+envs_dir="${HOME}/envs"
+if [ "${app_type}" = "node" ] && [ ! -f ".env" ]; then
+	if [ -f "${envs_dir}/${slug}.env" ]; then
+		echo ""
+		echo "Using .env from ${envs_dir}/${slug}.env"
+		cp "${envs_dir}/${slug}.env" .env
+	elif [ -f ".env.example" ]; then
 		cp .env.example .env
 		echo ""
 		echo "Opening .env for editing..."
 		${EDITOR:-vim} .env
-	elif [ ! -f ".env" ]; then
+	else
 		echo ""
 		echo "Warning: No .env file found. Create one if needed."
 		read -p "Press enter to continue..."
