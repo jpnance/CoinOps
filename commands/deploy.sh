@@ -1,4 +1,15 @@
 #!/bin/bash
+#
+# coinops deploy - Check for git changes and redeploy apps
+#
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+	echo "Usage: coinops deploy"
+	echo ""
+	echo "Check all apps for git changes, pull and redeploy if needed."
+	echo "Respects .deploy-lock files for per-app locks."
+	exit 0
+fi
 
 apps_dir="${HOME}/apps"
 logfile="${HOME}/ops/logs/deploy.log"

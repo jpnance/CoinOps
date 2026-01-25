@@ -1,4 +1,15 @@
 #!/bin/bash
+#
+# coinops backup - Create backups for all apps
+#
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+	echo "Usage: coinops backup"
+	echo ""
+	echo "Create backups for all apps that have a backup_cmd defined in coinops.json."
+	echo "Backups are stored in ~/backups/<slug>/ and copied to ~/backups/archives/."
+	exit 0
+fi
 
 apps_dir="${HOME}/apps"
 backups_dir="${HOME}/backups"

@@ -1,4 +1,15 @@
 #!/bin/bash
+#
+# coinops health - Check site availability
+#
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+	echo "Usage: coinops health"
+	echo ""
+	echo "Check availability of all configured sites."
+	echo "Alerts via ntfy if any site returns non-200 status."
+	exit 0
+fi
 
 declare -A sites=(
 	["pso"]="https://thedynastyleague.com/"

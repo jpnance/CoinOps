@@ -1,4 +1,14 @@
 #!/bin/bash
+#
+# coinops up - Bring up app containers
+#
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+	echo "Usage: coinops up"
+	echo ""
+	echo "Bring up all apps that have an up_cmd defined in coinops.json."
+	exit 0
+fi
 
 apps_dir="${HOME}/apps"
 

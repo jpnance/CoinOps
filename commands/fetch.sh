@@ -1,4 +1,16 @@
 #!/bin/bash
+#
+# coinops fetch - Fetch backups from server
+#
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+	echo "Usage: coinops fetch"
+	echo ""
+	echo "Fetch backups from the production server via SCP."
+	echo "Validates backup metadata and alerts on issues via ntfy."
+	echo "Intended to run on a backup host (e.g., Raspberry Pi)."
+	exit 0
+fi
 
 backup_dir="/home/jpnance/backups"
 monthly_dir="${backup_dir}/monthly"

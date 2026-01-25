@@ -1,15 +1,23 @@
 #!/bin/bash
 #
-# add-app.sh - Set up a new app from a GitHub repo
-#
-# Usage: add-app.sh <repo> [--no-ssl] [-y]
-#
-#   <repo>      GitHub repo (e.g., pickahit, jpnance/pickahit, or full URL)
-#   --no-ssl    Skip SSL certificate (default: obtain cert)
-#   -y, --yes   Skip confirmation prompt
+# coinops add - Set up a new app from a GitHub repo
 #
 
 set -e
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+	echo "Usage: coinops add <repo> [--no-ssl] [-y]"
+	echo ""
+	echo "Set up a new app from a GitHub repo."
+	echo ""
+	echo "Arguments:"
+	echo "  <repo>      GitHub repo (e.g., pickahit, jpnance/pickahit, or full URL)"
+	echo ""
+	echo "Options:"
+	echo "  --no-ssl    Skip SSL certificate (default: obtain cert)"
+	echo "  -y, --yes   Skip confirmation prompt"
+	exit 0
+fi
 
 # ==============================================================================
 # Configuration
