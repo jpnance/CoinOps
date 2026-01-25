@@ -30,9 +30,8 @@ for app_dir in "${apps_dir}"/*/; do
 
 	if [ -f "${app_dir}.deploy-lock" ]; then
 		commit_hash=$(git rev-parse --short HEAD)
-		commit_msg=$(git log -1 --pretty=%s)
 
-		notifications+=("🔒 ${slug}: ${commit_msg}")
+		notifications+=("🔒 ${slug} (${commit_hash})")
 		echo "${timestamp}: skipped ${slug} @ ${commit_hash} (locked)" >> "${logfile}"
 		continue
 	fi
@@ -47,14 +46,13 @@ for app_dir in "${apps_dir}"/*/; do
 		eval "${deploy_cmd}"
 
 		commit_hash=$(git rev-parse --short HEAD)
-		commit_msg=$(git log -1 --pretty=%s)
 
-		notifications+=("🚀 ${slug}: ${commit_msg}")
+		notifications+=("🚀 ${slug} (${commit_hash})")
 		echo "${timestamp}: deployed ${slug} @ ${commit_hash}" >> "${logfile}"
 	fi
 done
 
 if [ ${#notifications[@]} -gt 0 ]; then
-	printf -v ntfy_msg "%s\n\n" "${notifications[@]}"
+	printf -v ntfy_msg "%s\n" "${notifications[@]}"
 	curl -s -d "${ntfy_msg}" ntfy.sh/coinflipper > /dev/null
 fi
