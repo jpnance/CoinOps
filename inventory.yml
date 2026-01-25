@@ -1,7 +1,0 @@
----
-all:
-  children:
-    servers:
-      hosts:
-        cloudbreak:
-          ansible_host: 172.234.246.5

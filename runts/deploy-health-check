@@ -1,3 +1,0 @@
-#!/bin/bash
-
-scp roles/ops/files/health-check.sh smatterhorn.com:~/bin/

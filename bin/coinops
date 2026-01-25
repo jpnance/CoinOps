@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# coinops - CLI for managing apps
+#
+# Usage: coinops <command> [args]
+#
+
+COINOPS_DIR="$(dirname "$(dirname "$(readlink -f "$0")")")"
+COINOPS_COMMANDS="${COINOPS_DIR}/commands"
+
+cmd="$1"
+shift
+
+if [ -z "$cmd" ]; then
+	echo "Usage: coinops <command> [args]"
+	echo ""
+	echo "Commands:"
+	echo "  add <repo>         Set up a new app"
+	echo "  up <slug|all>      Bring up app(s)"
+	echo "  deploy             Run deploy loop for all apps"
+	echo "  backup             Create backups"
+	echo "  fetch              Fetch backups from server"
+	echo "  health             Check site availability"
+	echo ""
+	echo "Run 'coinops <command> --help' for more info on a command."
+	exit 0
+fi
+
+if [ -f "${COINOPS_COMMANDS}/${cmd}.sh" ]; then
+	exec bash "${COINOPS_COMMANDS}/${cmd}.sh" "$@"
+else
+	echo "Unknown command: $cmd"
+	echo "Run 'coinops' for a list of commands."
+	exit 1
+fi

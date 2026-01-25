@@ -1,10 +1,22 @@
-# CoinOps
+# coinops
 
-Infrastructure automation for the coinflipper ecosystem. Ansible playbooks for provisioning a Debian Linode server and Raspberry Pi backup puller.
+Infrastructure automation for the Coinflipper ecosystem. Shell scripts for provisioning a Debian Linode server and managing apps.
 
 ## Goal
 
-Automate yearly fresh-start Linode rebuilds. From a blank Debian instance to fully running production in one command.
+Automate yearly fresh-start Linode rebuilds. From a blank Debian instance to fully running production in minutes.
+
+## Quick Start
+
+```bash
+# On a fresh Debian server as root:
+curl -sL https://raw.githubusercontent.com/jpnance/CoinOps/main/bootstrap.sh | bash
+
+# Then as jpnance, add your apps:
+for app in pickahit pso login classix subcontest; do
+  add-app.sh $app -y
+done
+```
 
 ## Architecture
 
@@ -20,114 +32,128 @@ Automate yearly fresh-start Linode rebuilds. From a blank Debian instance to ful
 - Pulls hourly backups from Linode via SCP
 - Validates metadata, alerts on stale/missing/shrinking collections via ntfy
 - Monthly golden snapshots, auto-cleanup of old dailies
-- **Deployed manually** via `runt deploy-pi` (Pi runs Buster with Python 3.7, too old for modern Ansible)
+
+## Scripts
+
+### bootstrap.sh
+
+Provisions a fresh Debian server. Run as root.
+
+- Installs packages (docker, nginx, certbot, etc.)
+- Configures firewall, fail2ban, sshd hardening
+- Creates admin user with SSH keys
+- Installs and applies chezmoi dotfiles
+
+### add-app.sh
+
+Sets up a new app from a GitHub repo.
+
+```bash
+add-app.sh <repo> [--no-ssl] [-y]
+
+# Examples:
+add-app.sh pickahit              # Clone, configure, start
+add-app.sh pickahit --no-ssl     # Skip SSL certificate
+add-app.sh pickahit -y           # No confirmation prompt
+```
+
+Convention-driven:
+- Reads `coinops.json` from repo for configuration
+- Uses `~/envs/<slug>.env` if found, else opens `.env.example` in editor
+- Seeds from `~/seeds/<slug>.gz` if found
+- Generates nginx vhost, obtains SSL cert, starts app
+
+### deploy.sh
+
+Auto-deploy loop. Checks all apps for git changes, pulls and redeploys.
+
+### up.sh
+
+Brings up all apps (runs `up_cmd` from each `coinops.json`).
+
+### make-backups.sh
+
+Creates backups for all apps with `backup_cmd` defined.
+
+### fetch-backups.sh
+
+Pulls backups from server to local machine (runs on Pi or other backup host).
+
+### health-check.sh
+
+Checks site availability, alerts via ntfy on failures.
 
 ## Apps
 
+Each app has a `coinops.json` that defines how coinops manages it:
+
+```json
+{
+  "slug": "pickahit",
+  "domain": "pickahit.coinflipper.org",
+  "port": 2814,
+  "type": "node",
+  "deploy_cmd": "docker compose build && docker compose up -d",
+  "up_cmd": "docker compose up -d",
+  "backup_cmd": "docker exec pickahit-mongo mongodump ...",
+  "mongo_container": "pickahit-mongo"
+}
+```
+
 ### Node Apps
 
-| App | Domain | Port | Repo |
-|-----|--------|------|------|
-| Coinflipper Login | login.coinflipper.org | 5422 | jpnance/CoinflipperLogin |
-| SubContest | subcontest.coinflipper.org | 7811 | jpnance/SubContest |
-| Summer Classics | classics.coinflipper.org | 9895 | jpnance/SummerClassics |
-| Pick-a-Hit | pickahit.coinflipper.org | 2814 | jpnance/pickahit |
-| Primetime Soap Operas | thedynastyleague.com | 9528 | jpnance/PSO |
+| App | Domain | Port |
+|-----|--------|------|
+| Coinflipper Login | login.coinflipper.org | 5422 |
+| SubContest | subcontest.coinflipper.org | 7811 |
+| Summer Classics | classics.coinflipper.org | 9895 |
+| Pick-a-Hit | pickahit.coinflipper.org | 2814 |
+| Primetime Soap Operas | thedynastyleague.com | 9528 |
 
 ### Static Sites
 
-| Site | Domain | Repo |
-|------|--------|------|
-| ProWriterAlpha | pwa.coinflipper.org | jpnance/ProWriterAlpha |
-| Coinflipper | coinflipper.org | jpnance/Coinflipper |
+| Site | Domain |
+|------|--------|
+| ProWriterAlpha | pwa.coinflipper.org |
+| Coinflipper | coinflipper.org |
 
 ### Upload Sites
 
-| Site | Domain | Notes |
-|------|--------|-------|
-| BBGPBG | props.coinflipper.org | Directory created, content uploaded manually |
+| Site | Domain |
+|------|--------|
+| BBGPBG | props.coinflipper.org |
 
-## Key Decisions
-
-- **Ansible over shell scripts:** Idempotency, templating, structure
-- **Runs from laptop:** No agent on server, just SSH
-- **Seeder key for server-to-server SSH:** Temporary private key deployed during playbook, deleted at cleanup
-- **HTTPS git cloning:** Public repos, no deploy key needed
-- **Secrets via Ansible Vault:** Encrypted in repo, password file at `~/.vault_pass`
-- **Seed from live prod:** During cutover, databases are seeded directly from the outgoing server
-- **Copy certs from old prod:** SSL certificates rsync'd from outgoing server, certbot installed for renewal only
-- **Docker from Debian repos:** `docker.io` and `docker-compose` packages (not Docker's official repo)
-- **Docker log rotation:** Configured in `/etc/docker/daemon.json`
-- **Container restart policy:** `restart: unless-stopped` in all docker-compose files
-- **Sequential app provisioning:** Each app is fully set up before moving to the next
-
-## Server Setup Flow
+## Migration Flow
 
 1. Create Linode (Debian, UI or API)
-2. Update DNS A records to new IP
-3. Update `inventory.yml` with new IP
-4. Run `ansible-playbook site.yml`
-   - **Preflight:** Verifies old prod is reachable (runs locally)
-   - **Bootstrap (as root):** Installs packages, configures firewall, creates user, deploys seeder key
-   - **Configure (as jpnance):** Docker, chezmoi, app clones, database seeding, backups, ops scripts, certs, nginx
-   - **Cleanup:** Removes seeder key and temporary configs
-5. Verify apps are running: `curl -k https://<new-ip>/ -H "Host: login.coinflipper.org"`
-6. Cut over DNS when ready
-
-## Secrets (group_vars/all/vault.yml)
-
-- `vault_google_api_key`
-- `vault_pso_fantrax_cookies`
-- `vault_login_gmail_*`
-- `vault_seeder_private_key` (for new server → old server during cutover)
-- `vault_seeder_public_key` (added to old server's authorized_keys)
+2. SSH in as root, run `bootstrap.sh`
+3. Transfer env files: `scp oldserver:apps/*/.env newserver:envs/<slug>.env`
+4. Transfer seed files: `scp oldserver:backups/archives/* newserver:seeds/`
+5. SSH as jpnance, run `add-app.sh <repo>` for each app (or loop with `-y`)
+6. Update DNS A records to new IP
+7. Verify apps are running
 
 ## File Structure
 
 ```
-CoinOps/
-├── ansible.cfg
-├── inventory.yml
-├── site.yml
-├── group_vars/
-│   └── all/
-│       ├── vars.yml        # App definitions, domains, ports
-│       └── vault.yml       # Encrypted secrets
-├── roles/
-│   ├── preflight/          # Verify old prod is reachable
-│   ├── base/               # apt, ufw, fail2ban, timezone
-│   ├── user/               # jpnance user, SSH keys, sudo, seeder key
-│   ├── docker/             # Docker, daemon config, network
-│   ├── chezmoi/            # Install chezmoi, apply dotfiles
-│   ├── apps/               # Clone repos, .env templates, seed DBs, start containers, scuttlebot
-│   ├── make-backups/       # Backup scripts, cron job
-│   ├── ops/                # deploy.sh, restart.sh, cron job
-│   ├── certs/              # Copy certs from old prod, install certbot
-│   ├── nginx/              # Install nginx, vhost templates
-│   ├── cleanup/            # Remove seeder key, temporary configs
-│   └── fetch-backups/      # Pi backup script (deployed via runt, not Ansible)
-└── runts/
-    └── deploy-pi           # Manual deploy of fetch-backups.sh to Pi
+coinops/
+├── bootstrap.sh           # Server provisioning script
+├── bin/
+│   └── coinops            # CLI dispatcher
+├── commands/
+│   ├── add.sh             # App setup
+│   ├── deploy.sh          # Auto-deploy loop
+│   ├── up.sh              # Bring up apps
+│   ├── backup.sh          # Backup creation
+│   ├── fetch.sh           # Backup fetching (for Pi)
+│   └── health.sh          # Site availability checks
+└── README.md
 ```
 
-## Running Specific Roles
+## Key Decisions
 
-*(TODO: Add tags for faster partial runs)*
-
-## Pi Setup
-
-The Raspberry Pi runs Buster (Python 3.7) which is too old for modern Ansible. Deploy manually:
-
-```bash
-runt deploy-pi
-```
-
-This copies `roles/fetch-backups/files/fetch-backups.sh` to the Pi. Cron jobs must be set up once manually:
-
-```bash
-# Fetch backups from Linode hourly
-0 * * * * /bin/bash ~/backups/fetch-backups.sh
-
-# Propagate monthly snapshots to offsite backup (5 min later)
-5 * * * * /usr/bin/rsync -az ~/backups/monthly/* jpnance@offsite.com:~/backups
-```
+- **Shell scripts over Ansible:** Simpler, faster, no Python dependency
+- **Convention over configuration:** `~/envs/`, `~/seeds/`, `coinops.json`
+- **HTTPS by default:** SSL certificates via certbot, automatic renewal
+- **Docker from Debian repos:** `docker.io` package (not Docker's official repo)
+- **chezmoi for dotfiles:** Consistent shell environment across machines
