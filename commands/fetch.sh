@@ -86,7 +86,7 @@ ln -fsnT "${date}/${time}" latest
 # Monthly golden snapshot
 mkdir -p "${monthly_dir}"
 if [ ! -d "${monthly_dir}/${year_month}" ]; then
-	alerts+=("📦 monthly: ${year_month}")
+	alerts+=("📀 monthly: ${year_month}")
 	cp -al "${date}/${time}" "${monthly_dir}/${year_month}"
 fi
 
@@ -101,12 +101,12 @@ done
 
 # Send alerts if any
 if [ ${#alerts[@]} -gt 0 ]; then
-	printf -v ntfy_msg "%s\n\n" "${alerts[@]}"
+	printf -v ntfy_msg "%s\n" "${alerts[@]}"
 	curl -s -d "${ntfy_msg}" ntfy.sh/coinflipper > /dev/null
 fi
 
 # Success notification twice daily (6am and 6pm)
 if [ ${#alerts[@]} -eq 0 ] && { [ "$hour" = "06" ] || [ "$hour" = "18" ]; }; then
-	printf -v ntfy_msg "✅ %s\n" "${dbs[@]}"
+	printf -v ntfy_msg "💾 %s\n" "${dbs[@]}"
 	curl -s -d "${ntfy_msg}" ntfy.sh/coinflipper > /dev/null
 fi
