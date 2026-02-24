@@ -37,6 +37,20 @@ if [ "$(id -u)" -ne 0 ]; then
 	exit 1
 fi
 
+if ! [ -t 0 ]; then
+	echo "This script requires an interactive TTY (it prompts for hostname, Docker network, and admin password)."
+	exit 1
+fi
+
+read -p "Hostname [cloudbreak]: " input_host
+HOSTNAME="${input_host:-cloudbreak}"
+read -p "Docker network [coinflipper] (type 'none' to skip): " input_net
+if [[ -n "${input_net}" && "${input_net,,}" == "none" ]]; then
+	DOCKER_NETWORK=""
+else
+	DOCKER_NETWORK="${input_net:-coinflipper}"
+fi
+
 echo "==> Starting CoinOps bootstrap..."
 
 # ==============================================================================

@@ -18,11 +18,10 @@ This documents the process for migrating to a new server.
 
 ## Step 1: Bootstrap New Server
 
-SSH to the new server as root, then download the script (do not pipe curl into bash—the script prompts for an admin password and needs a real TTY). Edit the configuration block at the top to set `HOSTNAME` and, if you use a shared Docker network for your apps, `DOCKER_NETWORK` (leave it empty to skip creating one). Then run:
+SSH to the new server as root, then download and run the script (do not pipe curl into bash—the script prompts for hostname, Docker network, and admin password and needs a real TTY). When prompted, press Enter for defaults (`cloudbreak`, `coinflipper`); type `none` for the Docker network to skip creating a shared network.
 
 ```bash
 curl -O https://raw.githubusercontent.com/jpnance/CoinOps/main/bootstrap.sh
-vi bootstrap.sh   # set HOSTNAME, DOCKER_NETWORK (or leave DOCKER_NETWORK="" to skip)
 bash bootstrap.sh
 ```
 
