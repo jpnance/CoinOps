@@ -12,7 +12,8 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
 fi
 
 apps_dir="${HOME}/apps"
-logfile="${HOME}/ops/logs/deploy.log"
+logfile="${HOME}/logs/deploy.log"
+mkdir -p "$(dirname "${logfile}")"
 timestamp=$(date)
 
 notifications=()

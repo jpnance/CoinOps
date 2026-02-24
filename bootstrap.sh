@@ -4,10 +4,6 @@
 #
 # This script replicates the Ansible playbook for provisioning a new server.
 # Run as root on a fresh Debian/Ubuntu server.
-#
-# Usage: curl -sL https://raw.githubusercontent.com/jpnance/CoinOps/main/bootstrap.sh | bash
-#    or: bash bootstrap.sh
-#
 
 set -e
 
@@ -16,15 +12,15 @@ set -e
 # ==============================================================================
 
 HOSTNAME="cloudbreak"
-DOCKER_NETWORK="coinflipper"   # leave empty to skip creating a shared network
+DOCKER_NETWORK="coinflipper"
 ADMIN_USER="jpnance"
 ADMIN_EMAIL="jpnance@gmail.com"
 
 SSH_PUBKEYS=(
 	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKuTniiLi5+CqhwTFBIUCbBrN+BVkJvgMBbm83JkM6QF jpnance@countercheck"
-	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEX83/A/iIr0kjKky3yHQGK5hTHceBPheF/EZp6GoHF9 jpnance@salvage"
 	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIP2/rnsL5jNVgJSz8Gmrt3Jw9C5eaIDI7W5UuI/PRpH jpnance@lifeform"
 	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINeQcID7PFRkqFgzAfR2IGP7qu9ZFi9JLNXZ8NslsbK/ jpnance@sherpa"
+	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEX83/A/iIr0kjKky3yHQGK5hTHceBPheF/EZp6GoHF9 jpnance@salvage"
 )
 
 
@@ -109,6 +105,10 @@ for key in "${SSH_PUBKEYS[@]}"; do
 done
 chmod 600 "${admin_home}/.ssh/authorized_keys"
 chown -R "${ADMIN_USER}:${ADMIN_USER}" "${admin_home}/.ssh"
+
+echo "==> Creating ${ADMIN_USER} logs directory..."
+mkdir -p "${admin_home}/logs"
+chown "${ADMIN_USER}:${ADMIN_USER}" "${admin_home}/logs"
 
 echo "==> Setting admin password..."
 echo "Enter password for ${ADMIN_USER}:"
@@ -240,6 +240,17 @@ chown -R "${ADMIN_USER}:${ADMIN_USER}" "${admin_home}/.config"
 echo "==> Initializing and applying chezmoi as ${ADMIN_USER}..."
 su - "${ADMIN_USER}" -c "chezmoi init https://github.com/jpnance/chezmoi-dotfiles"
 su - "${ADMIN_USER}" -c "chezmoi apply"
+
+# ==============================================================================
+# Crontab (install as admin user, enable default auto-deploy and auto-backup processes)
+# ==============================================================================
+
+echo "==> Installing crontab for ${ADMIN_USER} (coinops backup, deploy)..."
+(
+	crontab -u "${ADMIN_USER}" -l 2>/dev/null || true
+	echo "33 * * * * ${admin_home}/bin/coinops backup"
+	echo "*/5 * * * * ${admin_home}/bin/coinops deploy"
+) | crontab -u "${ADMIN_USER}" -
 
 # ==============================================================================
 # Done

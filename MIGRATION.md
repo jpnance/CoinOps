@@ -26,9 +26,10 @@ bash bootstrap.sh
 ```
 
 This provisions:
-- Admin user with sudo access
+- Admin user with sudo access and ~/logs (for deploy log)
 - Docker (and optional shared network when DOCKER_NETWORK is set)
 - Chezmoi dotfiles (which includes coinops CLI)
+- Crontab for coinops backup (hourly at :33) and coinops deploy (every 5 min)
 - Nginx (base install with ACME challenge support)
 - Certbot (for SSL certificates)
 
@@ -122,7 +123,7 @@ curl https://login.coinflipper.org/
 
 ### Verify Auto-Deploy
 
-The `coinops deploy` script should run via cron. Push a change to verify it deploys automatically.
+Bootstrap installs a crontab that runs `coinops deploy` every 5 minutes. Push a change to an app and confirm it deploys automatically.
 
 ### Verify Backups
 
