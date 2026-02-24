@@ -14,7 +14,7 @@ curl -sL https://raw.githubusercontent.com/jpnance/CoinOps/main/bootstrap.sh | b
 
 # Then as jpnance, add your apps:
 for app in pickahit pso login classix subcontest; do
-  add-app.sh $app -y
+  coinops add $app -y
 done
 ```
 
@@ -44,17 +44,17 @@ Provisions a fresh Debian server. Run as root.
 - Creates admin user with SSH keys
 - Installs and applies chezmoi dotfiles
 
-### add-app.sh
+### coinops add
 
 Sets up a new app from a GitHub repo.
 
 ```bash
-add-app.sh <repo> [--no-ssl] [-y]
+coinops add <repo> [--no-ssl] [-y]
 
 # Examples:
-add-app.sh pickahit              # Clone, configure, start
-add-app.sh pickahit --no-ssl     # Skip SSL certificate
-add-app.sh pickahit -y           # No confirmation prompt
+coinops add pickahit              # Clone, configure, start
+coinops add pickahit --no-ssl     # Skip SSL certificate
+coinops add pickahit -y           # No confirmation prompt
 ```
 
 Convention-driven:
@@ -129,7 +129,7 @@ Each app has a `coinops.json` that defines how coinops manages it:
 2. SSH in as root, run `bootstrap.sh`
 3. Transfer env files: `scp oldserver:apps/*/.env newserver:envs/<slug>.env`
 4. Transfer seed files: `scp oldserver:backups/archives/* newserver:seeds/`
-5. SSH as jpnance, run `add-app.sh <repo>` for each app (or loop with `-y`)
+5. SSH as jpnance, run `coinops add <repo>` for each app (or loop with `-y`)
 6. Update DNS A records to new IP
 7. Verify apps are running
 

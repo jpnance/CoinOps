@@ -59,7 +59,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "${repo}" ]; then
-	echo "Usage: add-app.sh <repo> [--no-ssl] [-y]"
+	echo "Usage: coinops add <repo> [--no-ssl] [-y]"
 	echo ""
 	echo "  <repo>      GitHub repo (e.g., pickahit, jpnance/pickahit, or full URL)"
 	echo "  --no-ssl    Skip SSL certificate (default: obtain cert)"
@@ -134,7 +134,7 @@ if [ -d "${app_dir}" ]; then
 	echo ""
 	echo "To tear down and rebuild:"
 	echo "  rm -rf ${app_dir}"
-	echo "  add-app.sh ${repo}"
+	echo "  coinops add ${repo}"
 	exit 1
 fi
 
