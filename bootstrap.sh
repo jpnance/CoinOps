@@ -212,6 +212,7 @@ watch = true
 [data]
 tags = [
 	"bash",
+	"coinops",
 	"git",
 	"mrpretty",
 	"production",
