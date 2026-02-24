@@ -18,13 +18,7 @@ This documents the process for migrating to a new server.
 
 ## Step 1: Bootstrap New Server
 
-SSH to the new server as root and run:
-
-```bash
-curl -sL https://raw.githubusercontent.com/jpnance/CoinOps/main/bootstrap.sh | bash
-```
-
-Or download and run:
+SSH to the new server as root, then download and run the script (do not pipe curl into bash—the script prompts for an admin password and needs a real TTY):
 
 ```bash
 curl -O https://raw.githubusercontent.com/jpnance/CoinOps/main/bootstrap.sh
