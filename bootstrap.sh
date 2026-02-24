@@ -16,9 +16,9 @@ set -e
 # ==============================================================================
 
 HOSTNAME="cloudbreak"
+DOCKER_NETWORK="coinflipper"   # leave empty to skip creating a shared network
 ADMIN_USER="jpnance"
 ADMIN_EMAIL="jpnance@gmail.com"
-DOCKER_NETWORK="coinflipper"
 
 SSH_PUBKEYS=(
 	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKuTniiLi5+CqhwTFBIUCbBrN+BVkJvgMBbm83JkM6QF jpnance@countercheck"
@@ -128,8 +128,10 @@ echo "==> Starting Docker..."
 systemctl enable --now docker
 systemctl restart docker
 
-echo "==> Creating Docker network ${DOCKER_NETWORK}..."
-docker network inspect "${DOCKER_NETWORK}" &>/dev/null || docker network create "${DOCKER_NETWORK}"
+if [ -n "${DOCKER_NETWORK}" ]; then
+	echo "==> Creating Docker network ${DOCKER_NETWORK}..."
+	docker network inspect "${DOCKER_NETWORK}" &>/dev/null || docker network create "${DOCKER_NETWORK}"
+fi
 
 # ==============================================================================
 # Certbot (as root)
