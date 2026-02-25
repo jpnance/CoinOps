@@ -42,7 +42,7 @@ for app_dir in "${apps_dir}"/*/; do
 	cd "${backups_dir}/${slug}" || continue
 
 	# Run the backup command
-	eval "${backup_cmd}"
+	( eval "${backup_cmd}" )
 
 	# Generate metadata if monotonic is defined
 	monotonic=$(jq -r '.monotonic // empty' "${config}")
