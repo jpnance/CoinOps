@@ -157,6 +157,14 @@ apt install -y certbot
 echo "==> Enabling certbot auto-renewal..."
 systemctl enable --now certbot.timer
 
+echo "==> Setting up certbot renewal hook..."
+mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+cat > /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh <<'EOF'
+#!/bin/bash
+systemctl reload nginx
+EOF
+chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
+
 echo "==> Setting up letsencrypt directories..."
 mkdir -p /etc/letsencrypt
 mkdir -p /var/www/letsencrypt/.well-known/acme-challenge
