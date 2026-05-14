@@ -325,6 +325,7 @@ server {
 	error_log /var/log/nginx/${domain}.error.log;
 
 	gzip on;
+	client_max_body_size 20M;
 
 	location / {
 		proxy_pass http://localhost:${port};
@@ -348,6 +349,7 @@ server {
 	error_log /var/log/nginx/${domain}.error.log;
 
 	gzip on;
+	client_max_body_size 20M;
 
 	location / {
 		proxy_pass http://localhost:${port};
@@ -382,6 +384,7 @@ server {
 	error_log /var/log/nginx/${domain}.error.log;
 
 	gzip on;
+	client_max_body_size 20M;
 
 	location / {
 		try_files \$uri \$uri/ =404;
@@ -401,6 +404,7 @@ server {
 	error_log /var/log/nginx/${domain}.error.log;
 
 	gzip on;
+	client_max_body_size 20M;
 
 	location / {
 		try_files \$uri \$uri/ =404;
